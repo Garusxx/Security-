@@ -1,0 +1,122 @@
+.navbar {
+  position: absolute;
+  top: 1.5rem;
+  right: 2rem;
+  z-index: 100;
+}
+
+.navbar__right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.navbar__user {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.navbar__avatar {
+  width: 2.3rem;
+  height: 2.3rem;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.navbar__username {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.navbar__auth-btn,
+.navbar__profile-btn {
+  padding: 0.75rem 1.1rem;
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  color: white;
+}
+
+.navbar__profile-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(10px);
+}
+
+.navbar__profile-btn:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.navbar__auth-btn--login {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(10px);
+}
+
+.navbar__auth-btn--login:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.navbar__auth-btn--signup {
+  background: linear-gradient(135deg, #38bdf8, #6366f1);
+  box-shadow: 0 10px 25px rgba(56, 189, 248, 0.28);
+}
+
+.navbar__auth-btn--signup:hover {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 14px 32px rgba(56, 189, 248, 0.38);
+}
+
+.navbar__auth-btn--logout {
+  background: rgba(239, 68, 68, 0.14);
+  border-color: rgba(239, 68, 68, 0.28);
+}
+
+.navbar__auth-btn--logout:hover {
+  transform: translateY(-1px);
+  background: rgba(239, 68, 68, 0.22);
+}
+
+.navbar__auth-btn:active,
+.navbar__profile-btn:active {
+  transform: scale(0.98);
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    top: 1rem;
+    right: 1rem;
+    left: 1rem;
+  }
+
+  .navbar__right {
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+
+  .navbar__auth-btn,
+  .navbar__profile-btn {
+    padding: 0.65rem 0.95rem;
+    font-size: 0.88rem;
+  }
+
+  .navbar__username {
+    display: none;
+  }
+}
