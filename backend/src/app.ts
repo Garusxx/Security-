@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/", (_req, res) => {
-  res.json({ message: "API działa" });
+  res.json({ message: "API działa v2 " });
 });
 
 app.get("/test-db", async (_req, res) => {
