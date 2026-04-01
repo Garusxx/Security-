@@ -1,13 +1,20 @@
 import NavBar from "../components/NavBar";
-import "../style/homePage.css"
+import "../style/homePage.css";
 
-const HomePage = () => {
+type HomePageProps = {
+  user: null | { username: string };
+  onLogout: () => void;
+  onSignupClick: () => void;
+};
+
+const HomePage = ({ user, onLogout, onSignupClick }: HomePageProps) => {
   return (
     <>
       <NavBar
-        isLoggedIn={true}
-        username="MatiDev"
-        avatar="https://i.pravatar.cc/100?img=12"
+        isLoggedIn={!!user}
+        username={user?.username}
+        onLogout={onLogout}
+        onSignupClick={onSignupClick}
       />
 
       <section className="home">

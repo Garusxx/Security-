@@ -4,12 +4,18 @@ type NavbarProps = {
   isLoggedIn?: boolean;
   username?: string;
   avatar?: string;
+  onLoginClick?: () => void;
+  onSignupClick?: () => void;
+  onLogout?: () => void;
 };
 
 const NavBar = ({
-  isLoggedIn = true,
-  username = "MatiDev",
+  isLoggedIn = false,
+  username = "",
   avatar = "https://i.pravatar.cc/100?img=12",
+  onLoginClick,
+  onSignupClick,
+  onLogout,
 }: NavbarProps) => {
   return (
     <nav className="navbar">
@@ -23,16 +29,26 @@ const NavBar = ({
               <span className="navbar__username">{username}</span>
             </div>
 
-            <button className="navbar__auth-btn navbar__auth-btn--logout">
+            <button
+              className="navbar__auth-btn navbar__auth-btn--logout"
+              onClick={onLogout}
+            >
               Log out
             </button>
           </>
         ) : (
           <>
-            <button className="navbar__auth-btn navbar__auth-btn--login">
+            <button
+              className="navbar__auth-btn navbar__auth-btn--login"
+              onClick={onLoginClick}
+            >
               Log in
             </button>
-            <button className="navbar__auth-btn navbar__auth-btn--signup">
+
+            <button
+              className="navbar__auth-btn navbar__auth-btn--signup"
+              onClick={onSignupClick}
+            >
               Sign up
             </button>
           </>

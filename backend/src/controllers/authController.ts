@@ -6,25 +6,60 @@ export const signup = async (req: Request, res: Response) => {
   try {
     const { username, email, password } = req.body;
 
+    // Check if all required fields are provided
     if (!username || !email || !password) {
-      return res.status(400).json({ message: "Wszystkie pola są wymagane" });
+      return res.status(400).json({
+        message: "All fields are required",
+      });
     }
 
-    const hash = await bcrypt.hash(password, 10);
+    // Normalize input data
+    const normalizedUsername = username.trim();
+    const normalizedEmail = email.toLowerCase().trim();
 
-    await db.query(
-      "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
-      [username, email, hash]
+    // Validate password length
+    if (password.length < 6) {
+      return res.status(400).json({
+        message: "Password must be at least 6 characters long",
+      });
+    }
+
+    // Check if user already exists by email or username
+    const [existingUsers]: any = await db.query(
+      "SELECT id FROM users WHERE email = ? OR username = ? LIMIT 1",
+      [normalizedEmail, normalizedUsername]
     );
 
-    return res.status(201).json({ message: "User created" });
-  } catch (err: any) {
-    console.error(err);
-
-    if (err.code === "ER_DUP_ENTRY") {
-      return res.status(400).json({ message: "User already exists" });
+    if (existingUsers.length > 0) {
+      return res.status(400).json({
+        message: "User with this email or username already exists",
+      });
     }
 
-    return res.status(500).json({ message: "Server error" });
+    // Hash the password before saving it to the database
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Insert the new user into the database
+    await db.query(
+      "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
+      [normalizedUsername, normalizedEmail, hashedPassword]
+    );
+
+    return res.status(201).json({
+      message: "User created successfully",
+    });
+  } catch (error: any) {
+    console.error("Signup error:", error);
+
+    // Handle duplicate entry errors from MySQL
+    if (error.code === "ER_DUP_ENTRY") {
+      return res.status(400).json({
+        message: "User already exists",
+      });
+    }
+
+    return res.status(500).json({
+      message: "Internal server error",
+    });
   }
 };

@@ -1,27 +1,28 @@
 import express from "express";
 import cors from "cors";
+import dotenv from "dotenv";
 import authRoutes from "./routes/authRoutes";
-import { db } from "./config/db";
+
+dotenv.config();
 
 const app = express();
+const PORT = process.env.PORT || 5000;
 
+// Enable CORS for frontend requests
 app.use(cors());
+
+// Parse incoming JSON requests
 app.use(express.json());
 
-app.get("/", (_req, res) => {
-  res.json({ message: "API działa v2 " });
-});
-
-app.get("/test-db", async (_req, res) => {
-  try {
-    const [rows] = await db.query("SELECT 1 AS ok");
-    res.json(rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "DB error", error: err });
-  }
-});
-
+// Register auth routes
 app.use("/api/auth", authRoutes);
 
-export default app;
+// Health check route
+app.get("/", (_req, res) => {
+  res.send("API is running");
+});
+
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
