@@ -10,6 +10,7 @@ export default function Signup({ onClose }: SignupProps) {
     username: "",
     email: "",
     password: "",
+    confirmPassword: "",
   });
 
   const [message, setMessage] = useState("");
@@ -23,15 +24,33 @@ export default function Signup({ onClose }: SignupProps) {
     }));
   };
 
+  const passwordChecks = {
+    length: formData.password.length >= 8,
+    uppercase: /[A-Z]/.test(formData.password),
+    number: /[0-9]/.test(formData.password),
+    special: /[^A-Za-z0-9]/.test(formData.password),
+  };
+
+  const passwordsMatch =
+    formData.confirmPassword.length > 0 &&
+    formData.password === formData.confirmPassword;
+
+  const isPasswordValid =
+    Object.values(passwordChecks).every(Boolean) && passwordsMatch;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     setMessage("");
     setError("");
+
+    if (!isPasswordValid) {
+      setError("Hasło nie spełnia wymagań");
+      return;
+    }
+
     setLoading(true);
 
-    console.log(import.meta.env.VITE_API_URL);
-    
     try {
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}/api/auth/signup`,
@@ -40,8 +59,12 @@ export default function Signup({ onClose }: SignupProps) {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(formData),
-        }
+          body: JSON.stringify({
+            username: formData.username,
+            email: formData.email,
+            password: formData.password,
+          }),
+        },
       );
 
       const data = await response.json();
@@ -56,6 +79,7 @@ export default function Signup({ onClose }: SignupProps) {
         username: "",
         email: "",
         password: "",
+        confirmPassword: "",
       });
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -105,7 +129,58 @@ export default function Signup({ onClose }: SignupProps) {
             onChange={handleChange}
           />
 
-          <button className="signup-button" type="submit" disabled={loading}>
+          <input
+            className="signup-input"
+            type="password"
+            name="confirmPassword"
+            placeholder="Confirm Password"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+          />
+
+          <div className="password-checklist">
+            <p className={`check-item ${passwordChecks.length ? "valid" : ""}`}>
+              <span className="check-icon">
+                {passwordChecks.length ? "✔" : "•"}
+              </span>
+              At least 8 characters
+            </p>
+            <p
+              className={`check-item ${passwordChecks.uppercase ? "valid" : ""}`}
+            >
+              <span className="check-icon">
+                {passwordChecks.uppercase ? "✔" : "•"}
+              </span>
+              One uppercase letter
+            </p>
+            <p className={`check-item ${passwordChecks.number ? "valid" : ""}`}>
+              <span className="check-icon">
+                {passwordChecks.number ? "✔" : "•"}
+              </span>
+              One number
+            </p>
+            <p
+              className={`check-item ${passwordChecks.special ? "valid" : ""}`}
+            >
+              <span className="check-icon">
+                {passwordChecks.special ? "✔" : "•"}
+              </span>
+              One special character
+            </p>
+          </div>
+
+          <p
+            className={`check-item match-check ${passwordsMatch ? "valid" : ""}`}
+          >
+            <span className="check-icon">{passwordsMatch ? "✔" : "•"}</span>
+            Passwords match
+          </p>
+
+          <button
+            className="signup-button"
+            type="submit"
+            disabled={loading || !isPasswordValid}
+          >
             {loading ? "Creating account..." : "Sign Up"}
           </button>
 
