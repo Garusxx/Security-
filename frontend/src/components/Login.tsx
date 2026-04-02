@@ -53,10 +53,12 @@ export default function Login({
             "Content-Type": "application/json",
           },
           body: JSON.stringify(formData),
-        }
+        },
       );
 
       const data = await response.json();
+
+      console.log("LOGIN RESPONSE:", data);
 
       if (!response.ok) {
         throw new Error(data.message || "Login failed");
@@ -64,22 +66,22 @@ export default function Login({
 
       if (data.token) {
         localStorage.setItem("token", data.token);
+        console.log("TOKEN SAVED");
       }
 
       if (data.user) {
         localStorage.setItem("user", JSON.stringify(data.user));
+        console.log("USER SAVED");
       }
+
+      console.log("LOCAL TOKEN:", localStorage.getItem("token"));
+      console.log("LOCAL USER:", localStorage.getItem("user"));
 
       if (data.user && onLoginSuccess) {
         onLoginSuccess(data.user);
       }
 
       setMessage(data.message || "Login successful");
-
-      setFormData({
-        email: "",
-        password: "",
-      });
 
       setTimeout(() => {
         onClose();

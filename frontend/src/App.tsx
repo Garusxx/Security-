@@ -4,7 +4,11 @@ import Signup from "./components/Signup";
 import Login from "./components/Login";
 
 function App() {
-  const [user, setUser] = useState<null | { username: string }>(null);
+  const [user, setUser] = useState<null | { username: string }>(() => {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
+
   const [showSignup, setShowSignup] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
 
@@ -12,7 +16,11 @@ function App() {
     <>
       <HomePage
         user={user}
-        onLogout={() => setUser(null)}
+        onLogout={() => {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          setUser(null);
+        }}
         onSignupClick={() => {
           setShowLogin(false);
           setShowSignup(true);
@@ -40,6 +48,7 @@ function App() {
             setShowLogin(false);
             setShowSignup(true);
           }}
+          onLoginSuccess={(loggedInUser) => setUser(loggedInUser)}
         />
       )}
     </>

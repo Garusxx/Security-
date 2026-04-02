@@ -2,6 +2,7 @@ import { Router } from "express";
 import { signup } from "../controllers/authController";
 import { login } from "../controllers/authController";
 import { protect } from "../middleware/authMiddleware";
+import { getMe } from "../controllers/authController";
 
 const router = Router();
 
@@ -10,8 +11,6 @@ router.post("/signup", signup);
 
 router.post("/login", login);
 
-router.get("/me", protect, (req, res) => {
-  res.json({ message: "Protected route works" });
-});
+router.get("/me", protect, getMe);
 
 export default router;

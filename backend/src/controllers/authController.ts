@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import { db } from "../config/db";
 import { validatePassword } from "../utils/validatePassword";
 import { generateToken } from "../utils/generateToken";
+import { AuthRequest } from "../middleware/authMiddleware";
 
 /**
  * @route POST /api/auth/signup
@@ -181,6 +182,39 @@ export const login = async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.error("Login error:", error);
+
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+
+export const getMe = async (req: AuthRequest, res: Response) => {
+  try {
+    // Check if user data was attached by the protect middleware
+    if (!req.user?.userId) {
+      return res.status(401).json({
+        message: "Not authorized",
+      });
+    }
+
+    // Find user by ID from decoded token
+    const [users]: any = await db.query(
+      "SELECT id, username, email FROM users WHERE id = ? LIMIT 1",
+      [req.user.userId]
+    );
+
+    if (users.length === 0) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      user: users[0],
+    });
+  } catch (error) {
+    console.error("Get me error:", error);
 
     return res.status(500).json({
       message: "Internal server error",
