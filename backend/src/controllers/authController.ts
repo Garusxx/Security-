@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { db } from "../config/db";
 import { validatePassword } from "../utils/validatePassword";
+import { generateToken } from "../utils/generateToken";
 
 /**
  * @route POST /api/auth/signup
@@ -59,13 +60,12 @@ export const signup = async (req: Request, res: Response) => {
     // Check if a user with the same email or username already exists
     const [existingUsers]: any = await db.query(
       "SELECT id, email, username FROM users WHERE email = ? OR username = ? LIMIT 1",
-      [normalizedEmail, normalizedUsername],
+      [normalizedEmail, normalizedUsername]
     );
 
     if (existingUsers.length > 0) {
       const existingUser = existingUsers[0];
 
-      // Provide more specific error messages
       if (existingUser.email === normalizedEmail) {
         return res.status(400).json({
           message: "User with this email already exists",
@@ -87,27 +87,32 @@ export const signup = async (req: Request, res: Response) => {
     const hashedPassword = await bcrypt.hash(normalizedPassword, 10);
 
     // Insert the new user into the database
-    await db.query(
+    const [result]: any = await db.query(
       "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
-      [normalizedUsername, normalizedEmail, hashedPassword],
+      [normalizedUsername, normalizedEmail, hashedPassword]
     );
 
-    // Return success response
+    const token = generateToken(result.insertId);
+
+    // Return success response with JWT
     return res.status(201).json({
       message: "User created successfully",
+      token,
+      user: {
+        id: result.insertId,
+        username: normalizedUsername,
+        email: normalizedEmail,
+      },
     });
   } catch (error: any) {
-    // Log error for debugging
     console.error("Signup error:", error);
 
-    // Handle duplicate entry error from MySQL
     if (error.code === "ER_DUP_ENTRY") {
       return res.status(400).json({
         message: "User already exists",
       });
     }
 
-    // Fallback for unexpected errors
     return res.status(500).json({
       message: "Internal server error",
     });
@@ -116,19 +121,69 @@ export const signup = async (req: Request, res: Response) => {
 
 /**
  * @route POST /api/auth/login
- * @desc Authenticate user (login)
+ * @desc Authenticate user
  * @access Public
  */
 export const login = async (req: Request, res: Response) => {
   try {
-    // Extract login credentials from request body
-    const { username, password } = req.body;
+    // Extract credentials from request body
+    const { email, password } = req.body;
 
-    // (Login logic will be implemented later)
+    // Validate required fields
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "Email and password are required",
+      });
+    }
+
+    // Normalize input
+    const normalizedEmail = String(email).toLowerCase().trim();
+    const normalizedPassword = String(password);
+
+    // Find user by email
+    const [users]: any = await db.query(
+      "SELECT id, username, email, password_hash FROM users WHERE email = ? LIMIT 1",
+      [normalizedEmail]
+    );
+
+    // Do not reveal whether email exists
+    if (users.length === 0) {
+      return res.status(401).json({
+        message: "Invalid email or password",
+      });
+    }
+
+    const user = users[0];
+
+    // Compare provided password with stored hash
+    const isPasswordValid = await bcrypt.compare(
+      normalizedPassword,
+      user.password_hash
+    );
+
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        message: "Invalid email or password",
+      });
+    }
+
+    const token = generateToken(user.id);
+
+    // Return token and safe user data
+    return res.status(200).json({
+      message: "Login successful",
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+      },
+    });
   } catch (error: any) {
-    // Log error for debugging
-    console.error("LogIn error:", error);
+    console.error("Login error:", error);
+
+    return res.status(500).json({
+      message: "Internal server error",
+    });
   }
 };
-
-

@@ -3,9 +3,10 @@ import "../style/signup.css";
 
 type SignupProps = {
   onClose: () => void;
+  onSwitchToLogin?: () => void;
 };
 
-export default function Signup({ onClose }: SignupProps) {
+export default function Signup({ onClose, onSwitchToLogin }: SignupProps) {
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -45,7 +46,7 @@ export default function Signup({ onClose }: SignupProps) {
     setError("");
 
     if (!isPasswordValid) {
-      setError("Hasło nie spełnia wymagań");
+      setError("Password does not meet requirements");
       return;
     }
 
@@ -64,7 +65,7 @@ export default function Signup({ onClose }: SignupProps) {
             email: formData.email,
             password: formData.password,
           }),
-        },
+        }
       );
 
       const data = await response.json();
@@ -145,6 +146,7 @@ export default function Signup({ onClose }: SignupProps) {
               </span>
               At least 8 characters
             </p>
+
             <p
               className={`check-item ${passwordChecks.uppercase ? "valid" : ""}`}
             >
@@ -153,12 +155,14 @@ export default function Signup({ onClose }: SignupProps) {
               </span>
               One uppercase letter
             </p>
+
             <p className={`check-item ${passwordChecks.number ? "valid" : ""}`}>
               <span className="check-icon">
                 {passwordChecks.number ? "✔" : "•"}
               </span>
               One number
             </p>
+
             <p
               className={`check-item ${passwordChecks.special ? "valid" : ""}`}
             >
@@ -186,6 +190,13 @@ export default function Signup({ onClose }: SignupProps) {
 
           {message && <p className="signup-success">{message}</p>}
           {error && <p className="signup-error">{error}</p>}
+
+          <p className="signup-switch-text">
+            Already have an account?{" "}
+            <span className="signup-switch-link" onClick={onSwitchToLogin}>
+              Log in
+            </span>
+          </p>
         </form>
       </div>
     </div>

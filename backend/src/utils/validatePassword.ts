@@ -19,5 +19,5 @@ export const validatePassword = (password: string): string | null => {
     return "Password must contain at least one special character";
   }
 
-  return null; // wszystko OK
+  return null; 
 };

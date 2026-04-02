@@ -1,0 +1,189 @@
+.login-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  justify-content: flex-end;
+  align-items: stretch;
+  z-index: 999;
+  animation: overlayFadeIn 0.25s ease;
+  backdrop-filter: blur(2px);
+}
+
+.login-modal {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  height: 100vh;
+  background: #ffffff;
+  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.12);
+  padding: 32px 24px;
+  overflow-y: auto;
+  animation: slideInRight 0.35s ease;
+  transform-origin: right center;
+}
+
+.login-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  border: none;
+  background: transparent;
+  font-size: 28px;
+  cursor: pointer;
+  line-height: 1;
+  color: #111111;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.login-close:hover {
+  transform: rotate(90deg) scale(1.05);
+  opacity: 0.75;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 40px;
+  animation: contentFadeUp 0.4s ease;
+}
+
+.login-title {
+  margin: 0 0 10px;
+  text-align: left;
+  font-size: 28px;
+  color: #111111;
+  animation: contentFadeUp 0.45s ease;
+}
+
+.login-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #d0d0d0;
+  border-radius: 10px;
+  font-size: 16px;
+  outline: none;
+  box-sizing: border-box;
+  background: #fff;
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.login-input:focus {
+  border-color: #111111;
+  box-shadow: 0 0 0 3px rgba(17, 17, 17, 0.08);
+  transform: scale(1.01);
+}
+
+.login-input:hover {
+  border-color: #b8b8b8;
+}
+
+.login-button {
+  padding: 12px 14px;
+  border: none;
+  border-radius: 10px;
+  background-color: #111111;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.25s ease;
+}
+
+.login-button:hover:not(:disabled) {
+  opacity: 0.95;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(17, 17, 17, 0.18);
+}
+
+.login-button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.login-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.login-success,
+.login-error {
+  margin: 0;
+  text-align: center;
+  font-size: 14px;
+  animation: messageFadeIn 0.3s ease;
+}
+
+.login-success {
+  color: #178a3f;
+}
+
+.login-error {
+  color: #d93025;
+}
+
+.login-modal::-webkit-scrollbar {
+  width: 8px;
+}
+
+.login-modal::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.16);
+  border-radius: 20px;
+}
+
+.login-modal::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0.95;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes contentFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes messageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

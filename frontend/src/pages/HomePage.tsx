@@ -5,9 +5,10 @@ type HomePageProps = {
   user: null | { username: string };
   onLogout: () => void;
   onSignupClick: () => void;
+  onLoginClick: () => void; 
 };
 
-const HomePage = ({ user, onLogout, onSignupClick }: HomePageProps) => {
+const HomePage = ({ user, onLogout, onSignupClick, onLoginClick }: HomePageProps) => {
   return (
     <>
       <NavBar
@@ -15,6 +16,7 @@ const HomePage = ({ user, onLogout, onSignupClick }: HomePageProps) => {
         username={user?.username}
         onLogout={onLogout}
         onSignupClick={onSignupClick}
+        onLoginClick={onLoginClick}
       />
 
       <section className="home">
