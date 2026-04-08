@@ -61,7 +61,7 @@ export const signup = async (req: Request, res: Response) => {
     // Check if a user with the same email or username already exists
     const [existingUsers]: any = await db.query(
       "SELECT id, email, username FROM users WHERE email = ? OR username = ? LIMIT 1",
-      [normalizedEmail, normalizedUsername]
+      [normalizedEmail, normalizedUsername],
     );
 
     if (existingUsers.length > 0) {
@@ -90,15 +90,20 @@ export const signup = async (req: Request, res: Response) => {
     // Insert the new user into the database
     const [result]: any = await db.query(
       "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
-      [normalizedUsername, normalizedEmail, hashedPassword]
+      [normalizedUsername, normalizedEmail, hashedPassword],
     );
 
     const token = generateToken(result.insertId);
 
-    // Return success response with JWT
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
     return res.status(201).json({
       message: "User created successfully",
-      token,
       user: {
         id: result.insertId,
         username: normalizedUsername,
@@ -144,7 +149,7 @@ export const login = async (req: Request, res: Response) => {
     // Find user by email
     const [users]: any = await db.query(
       "SELECT id, username, email, password_hash FROM users WHERE email = ? LIMIT 1",
-      [normalizedEmail]
+      [normalizedEmail],
     );
 
     // Do not reveal whether email exists
@@ -159,7 +164,7 @@ export const login = async (req: Request, res: Response) => {
     // Compare provided password with stored hash
     const isPasswordValid = await bcrypt.compare(
       normalizedPassword,
-      user.password_hash
+      user.password_hash,
     );
 
     if (!isPasswordValid) {
@@ -170,10 +175,15 @@ export const login = async (req: Request, res: Response) => {
 
     const token = generateToken(user.id);
 
-    // Return token and safe user data
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
     return res.status(200).json({
       message: "Login successful",
-      token,
       user: {
         id: user.id,
         username: user.username,
@@ -182,6 +192,26 @@ export const login = async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.error("Login error:", error);
+
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+
+export const logout = async (_req: Request, res: Response) => {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+    });
+
+    return res.status(200).json({
+      message: "Logged out successfully",
+    });
+  } catch (error) {
+    console.error("Logout error:", error);
 
     return res.status(500).json({
       message: "Internal server error",
@@ -201,7 +231,7 @@ export const getMe = async (req: AuthRequest, res: Response) => {
     // Find user by ID from decoded token
     const [users]: any = await db.query(
       "SELECT id, username, email FROM users WHERE id = ? LIMIT 1",
-      [req.user.userId]
+      [req.user.userId],
     );
 
     if (users.length === 0) {

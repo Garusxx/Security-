@@ -60,6 +60,7 @@ export default function Signup({ onClose, onSwitchToLogin }: SignupProps) {
           headers: {
             "Content-Type": "application/json",
           },
+          credentials: "include",
           body: JSON.stringify({
             username: formData.username,
             email: formData.email,

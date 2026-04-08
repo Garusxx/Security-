@@ -14,6 +14,7 @@ app.use(cors());
 // Parse incoming JSON requests
 app.use(express.json());
 
+
 // Register auth routes
 app.use("/api/auth", authRoutes);
 
