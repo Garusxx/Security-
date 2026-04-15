@@ -1,29 +1,30 @@
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
-import authRoutes from "./routes/authRoutes";
+import cookieParser from "cookie-parser";
 
-dotenv.config();
+import authRoutes from "./routes/authRoutes";
+import testRoutes from "./routes/testRoutes";
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
-// Enable CORS for frontend requests
-app.use(cors());
+// middleware
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  }),
+);
 
-// Parse incoming JSON requests
 app.use(express.json());
+app.use(cookieParser());
 
-
-// Register auth routes
+// routes
 app.use("/api/auth", authRoutes);
+app.use("/api/tests", testRoutes);
 
-// Health check route
+// health check
 app.get("/", (_req, res) => {
   res.send("API is running");
 });
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+export default app;

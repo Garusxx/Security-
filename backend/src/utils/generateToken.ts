@@ -8,6 +8,6 @@ export const generateToken = (userId: number) => {
   }
 
   return jwt.sign({ userId }, secret, {
-    expiresIn: "7d",
+    expiresIn: "1h",
   });
 };
