@@ -1,3 +1,5 @@
+/* ===== CONTAINER ===== */
+
 .test-runner {
   width: 100%;
   max-width: 760px;
@@ -8,6 +10,8 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
   box-sizing: border-box;
 }
+
+/* ===== TOP BAR ===== */
 
 .test-runner__top {
   display: flex;
@@ -30,6 +34,8 @@
   font-weight: 600;
   color: #6b7280;
 }
+
+/* ===== QUESTION CARD ===== */
 
 .question-card {
   padding: 24px;
@@ -78,6 +84,8 @@
   color: #1f2937;
 }
 
+/* ===== ACTION BUTTONS ===== */
+
 .test-runner__actions {
   display: flex;
   justify-content: space-between;
@@ -105,4 +113,154 @@
 .test-runner__button:disabled {
   background: #9ca3af;
   cursor: not-allowed;
+}
+
+/* ===== RESULT SECTION ===== */
+
+.test-runner__result-title {
+  margin-bottom: 1.5rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #111827;
+  text-align: center;
+}
+
+.test-runner__result-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  padding: 1.25rem;
+  background: #f9fafb;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+}
+
+.test-runner__result-summary p {
+  margin: 0;
+  font-size: 1rem;
+  color: #1f2937;
+}
+
+/* ===== REVIEW SECTION ===== */
+
+.test-runner__review {
+  margin-top: 1rem;
+}
+
+.test-runner__review h3 {
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.test-runner__review-card {
+  margin-bottom: 1.25rem;
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.test-runner__review-question {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.test-runner__review-card p {
+  margin: 0.25rem 0;
+  font-size: 0.95rem;
+  color: #374151;
+}
+
+/* ===== WRONG / CORRECT ANSWER COLORS ===== */
+
+.test-runner__review-card p:nth-child(3) {
+  color: #dc2626;
+}
+
+.test-runner__review-card p:nth-child(4) {
+  color: #16a34a;
+}
+
+/* ===== EXPLANATION BLOCKS ===== */
+
+.test-runner__explanation-blocks {
+  margin-top: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.test-runner__explanation-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  transition: 0.2s ease;
+}
+
+/* Hover effect */
+.test-runner__explanation-item:hover {
+  transform: translateY(-1px);
+}
+
+/* Icon */
+.test-runner__explanation-icon {
+  font-size: 1rem;
+  margin-top: 0.1rem;
+}
+
+/* Text */
+.test-runner__explanation-item div {
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+/* Why */
+.test-runner__explanation-item:nth-child(1) {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+/* Memory hook */
+.test-runner__explanation-item:nth-child(2) {
+  background: #fefce8;
+  border-color: #fde68a;
+}
+
+/* Trap */
+.test-runner__explanation-item:nth-child(3) {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.test-runner__finish-hint {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #dc2626;
+  text-align: center;
+}
+
+.test-runner__result-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.test-runner__time-up {
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  font-weight: 600;
+  text-align: center;
 }

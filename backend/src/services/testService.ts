@@ -26,7 +26,7 @@ Return only valid JSON in this exact structure:
       "question": "Question text",
       "options": ["A", "B", "C", "D"],
       "correctAnswer": 0,
-      "explanation": "Short explanation"
+      "explanation": "Why: ... Memory hook: ... Trap: ..."
     }
   ]
 }
@@ -36,9 +36,13 @@ Rules:
 - exactly 4 options per question
 - correctAnswer must be a number from 0 to 3
 - one correct answer only
-- short explanation for each question
 - no markdown
 - no extra text
+- explanation must be short and easy to remember
+- each explanation must use exactly this format:
+  Why: one short sentence
+  Memory hook: one short memorable phrase or analogy
+  Trap: one short sentence explaining why a likely wrong answer is wrong
 `;
 
   const response = await openai.responses.create({

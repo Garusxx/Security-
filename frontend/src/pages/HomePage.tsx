@@ -20,6 +20,7 @@ type Question = {
   id: number;
   question: string;
   options: string[];
+  selectedAnswer: number | null;
 };
 
 const HomePage = ({
@@ -35,6 +36,7 @@ const HomePage = ({
   const [error, setError] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
   const [timeLeft, setTimeLeft] = useState(0);
+  const [attemptId, setAttemptId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchCurrentTest = async () => {
@@ -135,7 +137,8 @@ const HomePage = ({
         },
       );
 
-      const data: { message?: string; expiresAt?: string } = await res.json();
+      const data: { message?: string; expiresAt?: string; attemptId?: number } =
+        await res.json();
 
       if (!res.ok) {
         throw new Error(data.message || "Failed to start test");
@@ -169,6 +172,12 @@ const HomePage = ({
       if (!testData.test) {
         throw new Error("No test returned");
       }
+
+      if (!data.attemptId) {
+        throw new Error("No attemptId returned");
+      }
+
+      setAttemptId(data.attemptId);
 
       setExpiresAt(data.expiresAt);
       setQuestions(testData.test.questions);
@@ -217,7 +226,12 @@ const HomePage = ({
         )}
 
         {user && test && testStarted && (
-          <TestRunner questions={questions} timeLeft={timeLeft} />
+          <TestRunner
+            questions={questions}
+            timeLeft={timeLeft}
+            attemptId={attemptId}
+            testId={test.id}
+          />
         )}
 
         {error && <p className="error-message">{error}</p>}
