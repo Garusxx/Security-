@@ -23,6 +23,15 @@ type HistoryRow = RowDataPacket & {
   finished_at: Date;
 };
 
+const ALLOWED_AVATARS = [
+  "shield-1",
+  "shield-2",
+  "shield-3",
+  "lock-1",
+  "lock-2",
+  "lock-3",
+] as const;
+
 export const getProfile = async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user?.userId) {
@@ -76,19 +85,55 @@ export const getProfile = async (req: AuthRequest, res: Response) => {
         averageScore: Number(rows[0].average_score),
         testsCompleted: rows[0].tests_completed,
         rank: rankRows[0].user_rank,
+        history: historyRows.map((item) => ({
+          attemptId: item.attempt_id,
+          title: item.test_title,
+          score: item.score,
+          finishedAt: item.finished_at,
+        })),
       },
-      history: historyRows.map((item) => ({
-        attemptId: item.attempt_id,
-        title: item.test_title,
-        score: item.score,
-        finishedAt: item.finished_at,
-      })),
     });
   } catch (error) {
     console.error("Get profile error:", error);
 
     return res.status(500).json({
       message: "Failed to get profile",
+    });
+  }
+};
+
+export const updateAvatar = async (req: AuthRequest, res: Response) => {
+  try {
+    if (!req.user?.userId) {
+      return res.status(401).json({
+        message: "Not authorized",
+      });
+    }
+
+    const avatar = String(req.body?.avatar ?? "");
+
+    if (!ALLOWED_AVATARS.includes(avatar as (typeof ALLOWED_AVATARS)[number])) {
+      return res.status(400).json({
+        message: "Invalid avatar",
+      });
+    }
+
+    await db.query(
+      `UPDATE users
+       SET avatar = ?
+       WHERE id = ?`,
+      [avatar, req.user.userId],
+    );
+
+    return res.status(200).json({
+      message: "Avatar updated successfully",
+      avatar,
+    });
+  } catch (error) {
+    console.error("Update avatar error:", error);
+
+    return res.status(500).json({
+      message: "Failed to update avatar",
     });
   }
 };

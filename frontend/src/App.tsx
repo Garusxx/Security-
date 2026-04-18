@@ -4,7 +4,10 @@ import Signup from "./components/Signup";
 import Login from "./components/Login";
 
 function App() {
-  const [user, setUser] = useState<null | { username: string }>(null);
+  const [user, setUser] = useState<null | {
+    username: string;
+    avatar?: string;
+  }>(null);
 
   const [showSignup, setShowSignup] = useState(false);
   const [showLogin, setShowLogin] = useState(false);

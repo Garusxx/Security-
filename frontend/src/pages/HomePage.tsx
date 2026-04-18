@@ -1,10 +1,14 @@
 import NavBar from "../components/NavBar";
 import TestRunner from "../components/TestRunner";
+import ProfilePanel from "../components/ProfilePanel";
 import { useState, useEffect } from "react";
 import "../style/homePage.css";
 
 type HomePageProps = {
-  user: null | { username: string };
+  user: null | {
+    username: string;
+    avatar?: string;
+  };
   onLogout: () => void;
   onSignupClick: () => void;
   onLoginClick: () => void;
@@ -37,13 +41,17 @@ const HomePage = ({
   const [expiresAt, setExpiresAt] = useState("");
   const [timeLeft, setTimeLeft] = useState(0);
   const [attemptId, setAttemptId] = useState<number | null>(null);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   useEffect(() => {
     const fetchCurrentTest = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/tests/current", {
-          credentials: "include",
-        });
+        const res = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/tests/current`,
+          {
+            credentials: "include",
+          },
+        );
 
         if (!res.ok) return;
 
@@ -87,16 +95,19 @@ const HomePage = ({
       setExpiresAt("");
       setTimeLeft(0);
 
-      const res = await fetch("http://localhost:5000/api/tests/generate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/tests/generate`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            questionCount: 5,
+          }),
         },
-        credentials: "include",
-        body: JSON.stringify({
-          questionCount: 5,
-        }),
-      });
+      );
 
       const data: { message?: string; test?: GeneratedTest } = await res.json();
 
@@ -127,7 +138,7 @@ const HomePage = ({
       setError("");
 
       const res = await fetch(
-        `http://localhost:5000/api/tests/${test.id}/start`,
+        `${import.meta.env.VITE_API_URL}/api/tests/${test.id}/start`,
         {
           method: "POST",
           headers: {
@@ -149,7 +160,7 @@ const HomePage = ({
       }
 
       const testRes = await fetch(
-        `http://localhost:5000/api/tests/${test.id}`,
+        `${import.meta.env.VITE_API_URL}/api/tests/${test.id}`,
         {
           credentials: "include",
         },
@@ -196,9 +207,11 @@ const HomePage = ({
       <NavBar
         isLoggedIn={!!user}
         username={user?.username}
+        avatar={user?.avatar}
         onLogout={onLogout}
         onSignupClick={onSignupClick}
         onLoginClick={onLoginClick}
+        onProfileClick={() => setIsProfileOpen(true)}
       />
 
       <section className="home">
@@ -236,6 +249,10 @@ const HomePage = ({
 
         {error && <p className="error-message">{error}</p>}
       </section>
+
+      {isProfileOpen && (
+        <ProfilePanel onClose={() => setIsProfileOpen(false)} />
+      )}
     </>
   );
 };

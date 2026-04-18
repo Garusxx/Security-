@@ -4,7 +4,7 @@ import "../style/login.css";
 type LoginProps = {
   onClose: () => void;
   onSwitchToSignup?: () => void;
-  onLoginSuccess?: (user: { username: string }) => void;
+  onLoginSuccess?: (user: { username: string; avatar?: string }) => void;
 };
 
 export default function Login({
@@ -62,7 +62,6 @@ export default function Login({
       if (!response.ok) {
         throw new Error(data.message || "Login failed");
       }
-
 
       if (data.user && onLoginSuccess) {
         onLoginSuccess(data.user);

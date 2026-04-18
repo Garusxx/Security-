@@ -10,6 +10,11 @@ import { AuthRequest } from "../middleware/authMiddleware";
  * @desc Register a new user
  * @access Public
  */
+
+const generateRandomAvatarSeed = () => {
+  return Math.random().toString(36).slice(2, 10);
+};
+
 export const signup = async (req: Request, res: Response) => {
   try {
     // Extract user input from request body
@@ -87,10 +92,12 @@ export const signup = async (req: Request, res: Response) => {
     // Hash the password before storing it in the database
     const hashedPassword = await bcrypt.hash(normalizedPassword, 10);
 
+    const avatar = generateRandomAvatarSeed();
+
     // Insert the new user into the database
     const [result]: any = await db.query(
-      "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
-      [normalizedUsername, normalizedEmail, hashedPassword],
+      "INSERT INTO users (username, email, password_hash, avatar) VALUES (?, ?, ?, ?)",
+      [normalizedUsername, normalizedEmail, hashedPassword, avatar],
     );
 
     const token = generateToken(result.insertId);
@@ -108,6 +115,7 @@ export const signup = async (req: Request, res: Response) => {
         id: result.insertId,
         username: normalizedUsername,
         email: normalizedEmail,
+        avatar,
       },
     });
   } catch (error: any) {
@@ -148,7 +156,7 @@ export const login = async (req: Request, res: Response) => {
 
     // Find user by email
     const [users]: any = await db.query(
-      "SELECT id, username, email, password_hash FROM users WHERE email = ? LIMIT 1",
+      "SELECT id, username, email, password_hash, avatar FROM users WHERE email = ? LIMIT 1",
       [normalizedEmail],
     );
 
@@ -188,6 +196,7 @@ export const login = async (req: Request, res: Response) => {
         id: user.id,
         username: user.username,
         email: user.email,
+        avatar: user.avatar,
       },
     });
   } catch (error: any) {
@@ -221,16 +230,14 @@ export const logout = async (_req: Request, res: Response) => {
 
 export const getMe = async (req: AuthRequest, res: Response) => {
   try {
-    // Check if user data was attached by the protect middleware
     if (!req.user?.userId) {
       return res.status(401).json({
         message: "Not authorized",
       });
     }
 
-    // Find user by ID from decoded token
     const [users]: any = await db.query(
-      "SELECT id, username, email FROM users WHERE id = ? LIMIT 1",
+      "SELECT id, username, email, avatar FROM users WHERE id = ? LIMIT 1",
       [req.user.userId],
     );
 

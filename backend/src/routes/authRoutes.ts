@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { login, logout, getMe, signup } from "../controllers/authController";
-import { getProfile } from "../controllers/profileController";
+import { getProfile, updateAvatar } from "../controllers/profileController";
 import { protect } from "../middleware/authMiddleware";
 
 const router = Router();
@@ -11,5 +11,6 @@ router.post("/login", login);
 router.post("/logout", logout);
 router.get("/me", protect, getMe);
 router.get("/profile", protect, getProfile);
+router.patch("/profile/avatar", protect, updateAvatar);
 
 export default router;

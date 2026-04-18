@@ -536,6 +536,25 @@ export const submitTest = async (req: AuthRequest, res: Response) => {
     );
 
     await db.query(
+      `DELETE FROM tests
+   WHERE user_id = ?
+     AND status = 'finished'
+     AND id NOT IN (
+       SELECT test_id FROM (
+         SELECT ta.test_id
+         FROM test_attempts ta
+         INNER JOIN tests t ON t.id = ta.test_id
+         WHERE ta.user_id = ?
+           AND ta.status = 'finished'
+           AND t.status = 'finished'
+         ORDER BY ta.finished_at DESC
+         LIMIT 5
+       ) AS latest_tests
+     )`,
+      [req.user.userId, req.user.userId],
+    );
+
+    await db.query(
       `UPDATE users
    SET
      tests_completed = tests_completed + 1,

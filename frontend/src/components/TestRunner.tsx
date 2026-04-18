@@ -73,10 +73,10 @@ const TestRunner = ({
 
   const parseExplanation = (explanation: string) => {
     const whyMatch = explanation.match(
-      /Why\s*:\s*([\s\S]*?)(?=Memory\s*hook\s*:|Trap\s*:|$)/i
+      /Why\s*:\s*([\s\S]*?)(?=Memory\s*hook\s*:|Trap\s*:|$)/i,
     );
     const memoryHookMatch = explanation.match(
-      /Memory\s*hook\s*:\s*([\s\S]*?)(?=Trap\s*:|$)/i
+      /Memory\s*hook\s*:\s*([\s\S]*?)(?=Trap\s*:|$)/i,
     );
     const trapMatch = explanation.match(/Trap\s*:\s*([\s\S]*)/i);
 
@@ -101,7 +101,7 @@ const TestRunner = ({
 
   const handleSelectAnswer = async (
     questionId: number,
-    optionIndex: number
+    optionIndex: number,
   ) => {
     setAnswers((prev) => ({
       ...prev,
@@ -111,18 +111,21 @@ const TestRunner = ({
     if (!attemptId) return;
 
     try {
-      const res = await fetch("http://localhost:5000/api/tests/answer", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/tests/answer`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            attemptId,
+            questionId,
+            selectedAnswer: optionIndex,
+          }),
         },
-        credentials: "include",
-        body: JSON.stringify({
-          attemptId,
-          questionId,
-          selectedAnswer: optionIndex,
-        }),
-      });
+      );
 
       if (!res.ok) {
         const data: { message?: string } = await res.json();
@@ -140,11 +143,11 @@ const TestRunner = ({
       setSubmitting(true);
 
       const res = await fetch(
-        `http://localhost:5000/api/tests/${testId}/submit`,
+        `${import.meta.env.VITE_API_URL}/api/tests/${testId}/submit`,
         {
           method: "POST",
           credentials: "include",
-        }
+        },
       );
 
       const data: SubmitResponse & { message?: string } = await res.json();
@@ -167,9 +170,16 @@ const TestRunner = ({
         <h2 className="test-runner__result-title">Test Result</h2>
 
         <div className="test-runner__result-summary">
-          <p><strong>Score:</strong> {result.summary.score}</p>
-          <p><strong>Correct:</strong> {result.summary.correctAnswers} / {result.summary.totalQuestions}</p>
-          <p><strong>Time bonus:</strong> {result.summary.timeBonus}</p>
+          <p>
+            <strong>Score:</strong> {result.summary.score}
+          </p>
+          <p>
+            <strong>Correct:</strong> {result.summary.correctAnswers} /{" "}
+            {result.summary.totalQuestions}
+          </p>
+          <p>
+            <strong>Time bonus:</strong> {result.summary.timeBonus}
+          </p>
         </div>
 
         <div className="test-runner__review">
@@ -184,8 +194,13 @@ const TestRunner = ({
                 const parsed = parseExplanation(item.explanation);
 
                 return (
-                  <div key={item.questionId} className="test-runner__review-card">
-                    <p className="test-runner__review-question">{item.question}</p>
+                  <div
+                    key={item.questionId}
+                    className="test-runner__review-card"
+                  >
+                    <p className="test-runner__review-question">
+                      {item.question}
+                    </p>
 
                     <p>
                       <strong>Your answer:</strong>{" "}
@@ -203,21 +218,27 @@ const TestRunner = ({
                       {parsed.why && (
                         <div className="test-runner__explanation-item">
                           <span>💡</span>
-                          <div><strong>Why:</strong> {parsed.why}</div>
+                          <div>
+                            <strong>Why:</strong> {parsed.why}
+                          </div>
                         </div>
                       )}
 
                       {parsed.memoryHook && (
                         <div className="test-runner__explanation-item">
                           <span>🧠</span>
-                          <div><strong>Memory hook:</strong> {parsed.memoryHook}</div>
+                          <div>
+                            <strong>Memory hook:</strong> {parsed.memoryHook}
+                          </div>
                         </div>
                       )}
 
                       {parsed.trap && (
                         <div className="test-runner__explanation-item">
                           <span>⚠️</span>
-                          <div><strong>Trap:</strong> {parsed.trap}</div>
+                          <div>
+                            <strong>Trap:</strong> {parsed.trap}
+                          </div>
                         </div>
                       )}
                     </div>
@@ -241,7 +262,11 @@ const TestRunner = ({
   }
 
   if (questions.length === 0 || !currentQuestion) {
-    return <div className="test-runner"><p>No questions available.</p></div>;
+    return (
+      <div className="test-runner">
+        <p>No questions available.</p>
+      </div>
+    );
   }
 
   return (
@@ -262,7 +287,9 @@ const TestRunner = ({
       )}
 
       <div className="question-card">
-        <h3>{currentQuestionIndex + 1}. {currentQuestion.question}</h3>
+        <h3>
+          {currentQuestionIndex + 1}. {currentQuestion.question}
+        </h3>
 
         <div className="question-card__options">
           {currentQuestion.options.map((option, i) => (
