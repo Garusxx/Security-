@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { db } from "../config/db";
+import { ResultSetHeader, RowDataPacket } from "mysql2";
 import { validatePassword } from "../utils/validatePassword";
 import { generateToken } from "../utils/generateToken";
 import { AuthRequest } from "../middleware/authMiddleware";
@@ -14,6 +15,32 @@ import { AuthRequest } from "../middleware/authMiddleware";
 const generateRandomAvatarSeed = () => {
   return Math.random().toString(36).slice(2, 10);
 };
+
+interface ExistingUserRow extends RowDataPacket {
+  id: number;
+  email: string;
+  username: string;
+}
+
+interface LoginUserRow extends RowDataPacket {
+  id: number;
+  username: string;
+  email: string;
+  password_hash: string;
+  avatar: string | null;
+}
+
+interface PublicUserRow extends RowDataPacket {
+  id: number;
+  username: string;
+  email: string;
+  avatar: string | null;
+}
+
+interface MySqlError {
+  code?: string;
+  message?: string;
+}
 
 export const signup = async (req: Request, res: Response) => {
   try {
@@ -64,7 +91,7 @@ export const signup = async (req: Request, res: Response) => {
     }
 
     // Check if a user with the same email or username already exists
-    const [existingUsers]: any = await db.query(
+    const [existingUsers] = await db.query<ExistingUserRow[]>(
       "SELECT id, email, username FROM users WHERE email = ? OR username = ? LIMIT 1",
       [normalizedEmail, normalizedUsername],
     );
@@ -95,7 +122,7 @@ export const signup = async (req: Request, res: Response) => {
     const avatar = generateRandomAvatarSeed();
 
     // Insert the new user into the database
-    const [result]: any = await db.query(
+    const [result] = await db.query<ResultSetHeader>(
       "INSERT INTO users (username, email, password_hash, avatar) VALUES (?, ?, ?, ?)",
       [normalizedUsername, normalizedEmail, hashedPassword, avatar],
     );
@@ -118,10 +145,12 @@ export const signup = async (req: Request, res: Response) => {
         avatar,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const dbError = error as MySqlError;
+
     console.error("Signup error:", error);
 
-    if (error.code === "ER_DUP_ENTRY") {
+    if (dbError.code === "ER_DUP_ENTRY") {
       return res.status(400).json({
         message: "User already exists",
       });
@@ -155,7 +184,7 @@ export const login = async (req: Request, res: Response) => {
     const normalizedPassword = String(password);
 
     // Find user by email
-    const [users]: any = await db.query(
+    const [users] = await db.query<LoginUserRow[]>(
       "SELECT id, username, email, password_hash, avatar FROM users WHERE email = ? LIMIT 1",
       [normalizedEmail],
     );
@@ -199,8 +228,16 @@ export const login = async (req: Request, res: Response) => {
         avatar: user.avatar,
       },
     });
-  } catch (error: any) {
-    console.error("Login error:", error);
+  } catch (error: unknown) {
+    const dbError = error as MySqlError;
+
+    console.error("Signup error:", error);
+
+    if (dbError.code === "ER_DUP_ENTRY") {
+      return res.status(400).json({
+        message: "User already exists",
+      });
+    }
 
     return res.status(500).json({
       message: "Internal server error",
@@ -236,7 +273,7 @@ export const getMe = async (req: AuthRequest, res: Response) => {
       });
     }
 
-    const [users]: any = await db.query(
+    const [users] = await db.query<PublicUserRow[]>(
       "SELECT id, username, email, avatar FROM users WHERE id = ? LIMIT 1",
       [req.user.userId],
     );
