@@ -1,10 +1,28 @@
 import { Response } from "express";
-import { ResultSetHeader, RowDataPacket } from "mysql2";
+import { ResultSetHeader, RowDataPacket, PoolConnection } from "mysql2/promise";
 import { AuthRequest } from "../middleware/authMiddleware";
 import { generateSecurityTest } from "../services/testService";
 import { db } from "../config/db";
 
-const TEST_DURATION_MS = 0.5 * 60 * 1000;
+const TEST_DURATION_MINUTES = 0.5;
+const TEST_DURATION_MS = TEST_DURATION_MINUTES * 60 * 1000;
+
+type TestStatus = "generated" | "started" | "finished" | "expired";
+type AttemptStatus = "in_progress" | "finished" | "expired";
+
+type GenerateTestBody = {
+  questionCount?: number;
+};
+
+type SaveAnswerBody = {
+  attemptId: number;
+  questionId: number;
+  selectedAnswer: number;
+};
+
+type TestIdParams = {
+  id: string;
+};
 
 type ExistingTestRow = RowDataPacket & {
   id: number;
@@ -18,19 +36,19 @@ type ExistingAttemptRow = RowDataPacket & {
 type CurrentTestRow = RowDataPacket & {
   id: number;
   title: string;
-  status: "generated" | "started" | "finished" | "expired";
+  status: TestStatus;
 };
 
 type OwnedTestRow = RowDataPacket & {
   id: number;
   title: string;
-  status: "generated" | "started" | "finished" | "expired";
+  status: TestStatus;
 };
 
 type SaveAnswerAttemptRow = RowDataPacket & {
   id: number;
   user_id: number;
-  status: "in_progress" | "finished" | "expired";
+  status: AttemptStatus;
   expires_at: Date;
 };
 
@@ -64,18 +82,41 @@ type AttemptRow = RowDataPacket & {
   id: number;
   started_at: Date;
   expires_at: Date;
-  status: "in_progress" | "finished" | "expired";
+  status: AttemptStatus;
+};
+
+const getUserIdOrRespond = (req: AuthRequest, res: Response): number | null => {
+  if (!req.user?.userId) {
+    res.status(401).json({
+      message: "Not authorized",
+    });
+    return null;
+  }
+
+  return req.user.userId;
+};
+
+const parsePositiveInt = (value: unknown): number | null => {
+  const parsed = Number(value);
+
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    return null;
+  }
+
+  return parsed;
 };
 
 export const generateTest = async (req: AuthRequest, res: Response) => {
-  try {
-    if (!req.user?.userId) {
-      return res.status(401).json({
-        message: "Not authorized",
-      });
-    }
+  const userId = getUserIdOrRespond(req, res);
+  if (!userId) {
+    return;
+  }
 
-    const questionCount = Number(req.body?.questionCount ?? 5);
+  let connection: PoolConnection | null = null;
+
+  try {
+    const body = req.body as GenerateTestBody;
+    const questionCount = Number(body?.questionCount ?? 5);
 
     if (
       !Number.isInteger(questionCount) ||
@@ -87,16 +128,21 @@ export const generateTest = async (req: AuthRequest, res: Response) => {
       });
     }
 
-    const [existingTests] = await db.query<ExistingTestRow[]>(
+    connection = await db.getConnection();
+    await connection.beginTransaction();
+
+    const [existingTests] = await connection.query<ExistingTestRow[]>(
       `SELECT id
        FROM tests
        WHERE user_id = ?
          AND status IN ('generated', 'started')
        LIMIT 1`,
-      [req.user.userId],
+      [userId],
     );
 
     if (existingTests.length > 0) {
+      await connection.rollback();
+
       return res.status(400).json({
         message: "You already have an active test",
       });
@@ -104,18 +150,28 @@ export const generateTest = async (req: AuthRequest, res: Response) => {
 
     const test = await generateSecurityTest(questionCount);
 
-    const [result] = await db.query<ResultSetHeader>(
-      "INSERT INTO tests (user_id, title) VALUES (?, ?)",
-      [req.user.userId, test.title],
+    const [testInsertResult] = await connection.query<ResultSetHeader>(
+      `INSERT INTO tests (user_id, title, status)
+       VALUES (?, ?, 'generated')`,
+      [userId, test.title],
     );
 
-    const testId = result.insertId;
+    const testId = testInsertResult.insertId;
 
     for (const question of test.questions) {
-      await db.query(
+      await connection.query<ResultSetHeader>(
         `INSERT INTO test_questions
-        (test_id, question_text, option_a, option_b, option_c, option_d, correct_answer, explanation)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          (
+            test_id,
+            question_text,
+            option_a,
+            option_b,
+            option_c,
+            option_d,
+            correct_answer,
+            explanation
+          )
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           testId,
           question.question,
@@ -129,34 +185,42 @@ export const generateTest = async (req: AuthRequest, res: Response) => {
       );
     }
 
+    await connection.commit();
+
     return res.status(200).json({
       message: "Test generated successfully",
       test: {
         id: testId,
         title: test.title,
-        status: "generated",
+        status: "generated" as TestStatus,
       },
     });
-  } catch (error) {
+  } catch (error: unknown) {
+    if (connection) {
+      await connection.rollback();
+    }
+
     console.error("Generate test error:", error);
 
     return res.status(500).json({
       message: "Failed to generate test",
     });
+  } finally {
+    connection?.release();
   }
 };
 
 export const startTest = async (req: AuthRequest, res: Response) => {
+  const userId = getUserIdOrRespond(req, res);
+  if (!userId) {
+    return;
+  }
+
   try {
-    if (!req.user?.userId) {
-      return res.status(401).json({
-        message: "Not authorized",
-      });
-    }
+    const params = req.params as TestIdParams;
+    const testId = parsePositiveInt(params.id);
 
-    const testId = Number(req.params.id);
-
-    if (!Number.isInteger(testId) || testId <= 0) {
+    if (!testId) {
       return res.status(400).json({
         message: "Invalid test id",
       });
@@ -167,12 +231,20 @@ export const startTest = async (req: AuthRequest, res: Response) => {
        FROM tests
        WHERE id = ? AND user_id = ?
        LIMIT 1`,
-      [testId, req.user.userId],
+      [testId, userId],
     );
 
     if (ownedTests.length === 0) {
       return res.status(404).json({
         message: "Test not found",
+      });
+    }
+
+    const test = ownedTests[0];
+
+    if (test.status === "finished" || test.status === "expired") {
+      return res.status(400).json({
+        message: "This test can no longer be started",
       });
     }
 
@@ -183,7 +255,7 @@ export const startTest = async (req: AuthRequest, res: Response) => {
          AND user_id = ?
          AND status = 'in_progress'
        LIMIT 1`,
-      [testId, req.user.userId],
+      [testId, userId],
     );
 
     if (existingAttempts.length > 0) {
@@ -197,25 +269,25 @@ export const startTest = async (req: AuthRequest, res: Response) => {
     const startedAt = new Date();
     const expiresAt = new Date(startedAt.getTime() + TEST_DURATION_MS);
 
-    const [result] = await db.query<ResultSetHeader>(
-      `INSERT INTO test_attempts (test_id, user_id, started_at, expires_at)
-       VALUES (?, ?, ?, ?)`,
-      [testId, req.user.userId, startedAt, expiresAt],
+    const [attemptInsertResult] = await db.query<ResultSetHeader>(
+      `INSERT INTO test_attempts (test_id, user_id, started_at, expires_at, status)
+       VALUES (?, ?, ?, ?, 'in_progress')`,
+      [testId, userId, startedAt, expiresAt],
     );
 
-    await db.query(
+    await db.query<ResultSetHeader>(
       `UPDATE tests
        SET status = 'started'
        WHERE id = ? AND user_id = ?`,
-      [testId, req.user.userId],
+      [testId, userId],
     );
 
     return res.status(201).json({
       message: "Test started",
-      attemptId: result.insertId,
+      attemptId: attemptInsertResult.insertId,
       expiresAt,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Start test error:", error);
 
     return res.status(500).json({
@@ -225,13 +297,12 @@ export const startTest = async (req: AuthRequest, res: Response) => {
 };
 
 export const getCurrentTest = async (req: AuthRequest, res: Response) => {
-  try {
-    if (!req.user?.userId) {
-      return res.status(401).json({
-        message: "Not authorized",
-      });
-    }
+  const userId = getUserIdOrRespond(req, res);
+  if (!userId) {
+    return;
+  }
 
+  try {
     const [rows] = await db.query<CurrentTestRow[]>(
       `SELECT id, title, status
        FROM tests
@@ -239,7 +310,7 @@ export const getCurrentTest = async (req: AuthRequest, res: Response) => {
          AND status IN ('generated', 'started')
        ORDER BY created_at DESC
        LIMIT 1`,
-      [req.user.userId],
+      [userId],
     );
 
     if (rows.length === 0) {
@@ -255,7 +326,7 @@ export const getCurrentTest = async (req: AuthRequest, res: Response) => {
         status: rows[0].status,
       },
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Get current test error:", error);
 
     return res.status(500).json({
@@ -265,16 +336,16 @@ export const getCurrentTest = async (req: AuthRequest, res: Response) => {
 };
 
 export const getTestById = async (req: AuthRequest, res: Response) => {
+  const userId = getUserIdOrRespond(req, res);
+  if (!userId) {
+    return;
+  }
+
   try {
-    if (!req.user?.userId) {
-      return res.status(401).json({
-        message: "Not authorized",
-      });
-    }
+    const params = req.params as TestIdParams;
+    const testId = parsePositiveInt(params.id);
 
-    const testId = Number(req.params.id);
-
-    if (!Number.isInteger(testId) || testId <= 0) {
+    if (!testId) {
       return res.status(400).json({
         message: "Invalid test id",
       });
@@ -285,7 +356,7 @@ export const getTestById = async (req: AuthRequest, res: Response) => {
        FROM tests
        WHERE id = ? AND user_id = ?
        LIMIT 1`,
-      [testId, req.user.userId],
+      [testId, userId],
     );
 
     if (ownedTests.length === 0) {
@@ -315,14 +386,19 @@ export const getTestById = async (req: AuthRequest, res: Response) => {
            LIMIT 1
          )
        WHERE q.test_id = ?`,
-      [testId, req.user.userId, testId],
+      [testId, userId, testId],
     );
 
-    const formattedQuestions = questions.map((q) => ({
-      id: q.id,
-      question: q.question_text,
-      options: [q.option_a, q.option_b, q.option_c, q.option_d],
-      selectedAnswer: q.selected_answer,
+    const formattedQuestions = questions.map((question) => ({
+      id: question.id,
+      question: question.question_text,
+      options: [
+        question.option_a,
+        question.option_b,
+        question.option_c,
+        question.option_d,
+      ],
+      selectedAnswer: question.selected_answer,
     }));
 
     return res.status(200).json({
@@ -333,7 +409,7 @@ export const getTestById = async (req: AuthRequest, res: Response) => {
         questions: formattedQuestions,
       },
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Get test error:", error);
 
     return res.status(500).json({
@@ -343,20 +419,21 @@ export const getTestById = async (req: AuthRequest, res: Response) => {
 };
 
 export const saveAnswer = async (req: AuthRequest, res: Response) => {
-  try {
-    if (!req.user?.userId) {
-      return res.status(401).json({
-        message: "Not authorized",
-      });
-    }
+  const userId = getUserIdOrRespond(req, res);
+  if (!userId) {
+    return;
+  }
 
-    const attemptId = Number(req.body?.attemptId);
-    const questionId = Number(req.body?.questionId);
-    const selectedAnswer = Number(req.body?.selectedAnswer);
+  try {
+    const body = req.body as SaveAnswerBody;
+
+    const attemptId = parsePositiveInt(body?.attemptId);
+    const questionId = parsePositiveInt(body?.questionId);
+    const selectedAnswer = Number(body?.selectedAnswer);
 
     if (
-      !Number.isInteger(attemptId) ||
-      !Number.isInteger(questionId) ||
+      !attemptId ||
+      !questionId ||
       !Number.isInteger(selectedAnswer) ||
       selectedAnswer < 0 ||
       selectedAnswer > 3
@@ -371,7 +448,7 @@ export const saveAnswer = async (req: AuthRequest, res: Response) => {
        FROM test_attempts
        WHERE id = ? AND user_id = ?
        LIMIT 1`,
-      [attemptId, req.user.userId],
+      [attemptId, userId],
     );
 
     if (attemptRows.length === 0) {
@@ -389,6 +466,13 @@ export const saveAnswer = async (req: AuthRequest, res: Response) => {
     }
 
     if (new Date() > new Date(attempt.expires_at)) {
+      await db.query<ResultSetHeader>(
+        `UPDATE test_attempts
+         SET status = 'expired'
+         WHERE id = ?`,
+        [attemptId],
+      );
+
       return res.status(400).json({
         message: "Time is up. You can no longer change answers.",
       });
@@ -402,7 +486,7 @@ export const saveAnswer = async (req: AuthRequest, res: Response) => {
          AND a.user_id = ?
          AND q.id = ?
        LIMIT 1`,
-      [attemptId, req.user.userId, questionId],
+      [attemptId, userId, questionId],
     );
 
     if (questionRows.length === 0) {
@@ -411,7 +495,7 @@ export const saveAnswer = async (req: AuthRequest, res: Response) => {
       });
     }
 
-    await db.query(
+    await db.query<ResultSetHeader>(
       `INSERT INTO test_answers (attempt_id, question_id, selected_answer)
        VALUES (?, ?, ?)
        ON DUPLICATE KEY UPDATE selected_answer = VALUES(selected_answer)`,
@@ -421,7 +505,7 @@ export const saveAnswer = async (req: AuthRequest, res: Response) => {
     return res.status(200).json({
       message: "Answer saved",
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Save answer error:", error);
 
     return res.status(500).json({
@@ -431,32 +515,39 @@ export const saveAnswer = async (req: AuthRequest, res: Response) => {
 };
 
 export const submitTest = async (req: AuthRequest, res: Response) => {
+  const userId = getUserIdOrRespond(req, res);
+  if (!userId) {
+    return;
+  }
+
+  let connection: PoolConnection | null = null;
+
   try {
-    if (!req.user?.userId) {
-      return res.status(401).json({
-        message: "Not authorized",
-      });
-    }
+    const params = req.params as TestIdParams;
+    const testId = parsePositiveInt(params.id);
 
-    const testId = Number(req.params.id);
-
-    if (!Number.isInteger(testId) || testId <= 0) {
+    if (!testId) {
       return res.status(400).json({
         message: "Invalid test id",
       });
     }
 
-    const [attempts] = await db.query<AttemptRow[]>(
+    connection = await db.getConnection();
+    await connection.beginTransaction();
+
+    const [attempts] = await connection.query<AttemptRow[]>(
       `SELECT id, started_at, expires_at, status
        FROM test_attempts
        WHERE test_id = ?
          AND user_id = ?
          AND status = 'in_progress'
        LIMIT 1`,
-      [testId, req.user.userId],
+      [testId, userId],
     );
 
     if (attempts.length === 0) {
+      await connection.rollback();
+
       return res.status(404).json({
         message: "No active attempt found",
       });
@@ -465,7 +556,9 @@ export const submitTest = async (req: AuthRequest, res: Response) => {
     const attempt = attempts[0];
     const now = new Date();
 
-    const [rows] = await db.query<SubmitRow[]>(
+    const isExpired = now.getTime() > new Date(attempt.expires_at).getTime();
+
+    const [rows] = await connection.query<SubmitRow[]>(
       `SELECT
          q.id AS question_id,
          q.question_text,
@@ -516,57 +609,57 @@ export const submitTest = async (req: AuthRequest, res: Response) => {
     );
 
     const timeLeftMs = Math.max(0, maxTimeMs - timeUsedMs);
-    const timeBonus = Math.round((timeLeftMs / maxTimeMs) * 10);
+    const timeBonus = isExpired ? 0 : Math.round((timeLeftMs / maxTimeMs) * 10);
     const score = correctCount + timeBonus;
 
-    await db.query(
+    await connection.query<ResultSetHeader>(
       `UPDATE test_attempts
-       SET status = 'finished',
+       SET status = ?,
            finished_at = ?,
            score = ?
        WHERE id = ?`,
-      [now, score, attempt.id],
+      [isExpired ? "expired" : "finished", now, score, attempt.id],
     );
 
-    await db.query(
+    await connection.query<ResultSetHeader>(
       `UPDATE tests
-       SET status = 'finished'
+       SET status = ?
        WHERE id = ? AND user_id = ?`,
-      [testId, req.user.userId],
+      [isExpired ? "expired" : "finished", testId, userId],
     );
 
-    await db.query(
+    await connection.query<ResultSetHeader>(
       `DELETE FROM tests
-   WHERE user_id = ?
-     AND status = 'finished'
-     AND id NOT IN (
-       SELECT test_id FROM (
-         SELECT ta.test_id
-         FROM test_attempts ta
-         INNER JOIN tests t ON t.id = ta.test_id
-         WHERE ta.user_id = ?
-           AND ta.status = 'finished'
-           AND t.status = 'finished'
-         ORDER BY ta.finished_at DESC
-         LIMIT 5
-       ) AS latest_tests
-     )`,
-      [req.user.userId, req.user.userId],
+       WHERE user_id = ?
+         AND status IN ('finished', 'expired')
+         AND id NOT IN (
+           SELECT test_id FROM (
+             SELECT ta.test_id
+             FROM test_attempts ta
+             INNER JOIN tests t ON t.id = ta.test_id
+             WHERE ta.user_id = ?
+               AND ta.status = 'finished'
+               AND t.status = 'finished'
+             ORDER BY ta.finished_at DESC
+             LIMIT 5
+           ) AS latest_tests
+         )`,
+      [userId, userId],
     );
 
-    await db.query(
+    await connection.query<ResultSetHeader>(
       `UPDATE users
-   SET
-     tests_completed = tests_completed + 1,
-     best_score = GREATEST(best_score, ?),
-     average_score = (
-       (
-         average_score * tests_completed
-       ) + ?
-     ) / (tests_completed + 1)
-   WHERE id = ?`,
-      [score, score, req.user.userId],
+       SET
+         tests_completed = tests_completed + 1,
+         best_score = GREATEST(best_score, ?),
+         average_score = (
+           (average_score * tests_completed) + ?
+         ) / (tests_completed + 1)
+       WHERE id = ?`,
+      [score, score, userId],
     );
+
+    await connection.commit();
 
     return res.status(200).json({
       message: "Test submitted successfully",
@@ -575,14 +668,21 @@ export const submitTest = async (req: AuthRequest, res: Response) => {
         correctAnswers: correctCount,
         timeBonus,
         score,
+        expired: isExpired,
       },
       results,
     });
-  } catch (error) {
+  } catch (error: unknown) {
+    if (connection) {
+      await connection.rollback();
+    }
+
     console.error("Submit test error:", error);
 
     return res.status(500).json({
       message: "Failed to submit test",
     });
+  } finally {
+    connection?.release();
   }
 };

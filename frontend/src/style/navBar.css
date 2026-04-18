@@ -3,6 +3,7 @@
   top: 1.5rem;
   right: 2rem;
   z-index: 100;
+  font-family: "Courier New", Courier, monospace;
 }
 
 .navbar__right {
@@ -18,11 +19,11 @@
   align-items: center;
   gap: 0.65rem;
   padding: 0.45rem 0.8rem;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  background: #132018;
+  border: 1px solid #355d45;
+  box-shadow:
+    inset 0 0 0 1px rgba(94, 226, 143, 0.04),
+    0 0 12px rgba(94, 226, 143, 0.08);
 }
 
 .navbar__avatar {
@@ -30,71 +31,87 @@
   height: 2.3rem;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid #4ade80;
+  background: #0f1b15;
+  box-shadow: 0 0 10px rgba(74, 222, 128, 0.14);
 }
 
 .navbar__username {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--text-primary);
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #ecfdf5;
   white-space: nowrap;
+  letter-spacing: 0.03em;
 }
 
 .navbar__auth-btn,
 .navbar__profile-btn {
   padding: 0.75rem 1.1rem;
-  border-radius: 999px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  transition: all 0.2s ease;
-  border: 1px solid transparent;
-  color: white;
+  border: 1px solid #355d45;
+  background: #132018;
+  color: #dffff0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: inherit;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
 }
 
-.navbar__profile-btn {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(10px);
-}
-
-.navbar__profile-btn:hover {
+.navbar__profile-btn:hover,
+.navbar__auth-btn--login:hover {
   transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.14);
+  background: #1a2b20;
+  border-color: #5ee28f;
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(94, 226, 143, 0.14);
 }
 
 .navbar__auth-btn--login {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(10px);
-}
-
-.navbar__auth-btn--login:hover {
-  transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.14);
+  background: #132018;
+  border-color: #355d45;
 }
 
 .navbar__auth-btn--signup {
-  background: linear-gradient(135deg, #38bdf8, #6366f1);
-  box-shadow: 0 10px 25px rgba(56, 189, 248, 0.28);
+  background: #153020;
+  border-color: #5ee28f;
+  color: #f0fff4;
+  box-shadow:
+    inset 0 0 0 1px rgba(94, 226, 143, 0.06),
+    0 0 14px rgba(94, 226, 143, 0.14);
 }
 
 .navbar__auth-btn--signup:hover {
-  transform: translateY(-1px) scale(1.02);
-  box-shadow: 0 14px 32px rgba(56, 189, 248, 0.38);
+  transform: translateY(-1px);
+  background: #1d442d;
+  border-color: #86efac;
+  color: #ffffff;
+  box-shadow:
+    inset 0 0 0 1px rgba(134, 239, 172, 0.08),
+    0 0 18px rgba(94, 226, 143, 0.2);
 }
 
 .navbar__auth-btn--logout {
-  background: rgba(239, 68, 68, 0.14);
-  border-color: rgba(239, 68, 68, 0.28);
+  background: #261010;
+  border-color: #7f1d1d;
+  color: #fecaca;
 }
 
 .navbar__auth-btn--logout:hover {
   transform: translateY(-1px);
-  background: rgba(239, 68, 68, 0.22);
+  background: #341313;
+  border-color: #b91c1c;
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(248, 113, 113, 0.16);
 }
 
-.navbar__auth-btn:active,
-.navbar__profile-btn:active {
+.navbar__profile-btn:active,
+.navbar__auth-btn:active {
   transform: scale(0.98);
 }
 
@@ -113,7 +130,7 @@
   .navbar__auth-btn,
   .navbar__profile-btn {
     padding: 0.65rem 0.95rem;
-    font-size: 0.88rem;
+    font-size: 0.82rem;
   }
 
   .navbar__username {

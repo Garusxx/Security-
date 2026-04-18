@@ -23,7 +23,7 @@ type GeneratedTest = {
 type Question = {
   id: number;
   question: string;
-  options: string[];
+  options: [string, string, string, string];
   selectedAnswer: number | null;
 };
 

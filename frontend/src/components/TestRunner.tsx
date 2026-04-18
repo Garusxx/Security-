@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import TestProgressBar from "./TestProgressBar";
 import "../style/testRunner.css";
 
 type Question = {
   id: number;
   question: string;
-  options: string[];
+  options: [string, string, string, string];
   selectedAnswer: number | null;
 };
 
@@ -14,12 +14,13 @@ type SubmitSummary = {
   correctAnswers: number;
   timeBonus: number;
   score: number;
+  expired?: boolean;
 };
 
 type SubmitResultItem = {
   questionId: number;
   question: string;
-  options: string[];
+  options: [string, string, string, string];
   selectedAnswer: number | null;
   correctAnswer: number;
   isCorrect: boolean;
@@ -30,6 +31,10 @@ type SubmitResponse = {
   message: string;
   summary: SubmitSummary;
   results: SubmitResultItem[];
+};
+
+type ApiMessageResponse = {
+  message?: string;
 };
 
 type TestRunnerProps = {
@@ -49,6 +54,11 @@ const TestRunner = ({
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [result, setResult] = useState<SubmitResponse | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [savingQuestionId, setSavingQuestionId] = useState<number | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const runnerRef = useRef<HTMLDivElement | null>(null);
+  const initialTimeLeftRef = useRef<number>(Math.max(timeLeft, 0));
 
   const isTimeUp = timeLeft <= 0;
 
@@ -64,8 +74,46 @@ const TestRunner = ({
     setAnswers(initialAnswers);
   }, [questions]);
 
-  const minutes = Math.floor(timeLeft / 1000 / 60);
-  const seconds = Math.floor((timeLeft / 1000) % 60);
+  useEffect(() => {
+    const element = runnerRef.current;
+
+    if (!element) {
+      return;
+    }
+
+    const preventSelection = (event: Event) => {
+      event.preventDefault();
+    };
+
+    element.addEventListener("selectstart", preventSelection);
+
+    return () => {
+      element.removeEventListener("selectstart", preventSelection);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (initialTimeLeftRef.current <= 0 && timeLeft > 0) {
+      initialTimeLeftRef.current = timeLeft;
+    }
+  }, [timeLeft]);
+
+  const minutes = Math.max(0, Math.floor(timeLeft / 1000 / 60));
+  const seconds = Math.max(0, Math.floor((timeLeft / 1000) % 60));
+
+  const initialTimeLeft = Math.max(initialTimeLeftRef.current, 1);
+
+  const timeRatio = Math.max(
+    0,
+    Math.min(1, timeLeft / initialTimeLeft),
+  );
+
+  const timerClassName =
+    timeRatio <= 0.2
+      ? "test-runner__timer test-runner__timer--danger"
+      : timeRatio <= 0.5
+        ? "test-runner__timer test-runner__timer--warning"
+        : "test-runner__timer test-runner__timer--safe";
 
   const answeredCount = Object.keys(answers).length;
   const allQuestionsAnswered = answeredCount === questions.length;
@@ -87,6 +135,14 @@ const TestRunner = ({
     };
   };
 
+  const tryParseJson = async <T,>(res: Response): Promise<T | null> => {
+    try {
+      return (await res.json()) as T;
+    } catch {
+      return null;
+    }
+  };
+
   const handlePrevious = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex((prev) => prev - 1);
@@ -103,12 +159,20 @@ const TestRunner = ({
     questionId: number,
     optionIndex: number,
   ) => {
+    if (!attemptId || isTimeUp || submitting || savingQuestionId === questionId) {
+      return;
+    }
+
+    setError(null);
+
+    const previousAnswer = answers[questionId];
+
     setAnswers((prev) => ({
       ...prev,
       [questionId]: optionIndex,
     }));
 
-    if (!attemptId) return;
+    setSavingQuestionId(questionId);
 
     try {
       const res = await fetch(
@@ -127,12 +191,31 @@ const TestRunner = ({
         },
       );
 
+      const data = await tryParseJson<ApiMessageResponse>(res);
+
       if (!res.ok) {
-        const data: { message?: string } = await res.json();
-        throw new Error(data.message || "Failed to save answer");
+        throw new Error(data?.message || "Failed to save answer");
       }
     } catch (error) {
-      console.error("Save answer failed:", error);
+      setAnswers((prev) => {
+        const next = { ...prev };
+
+        if (previousAnswer === undefined) {
+          delete next[questionId];
+        } else {
+          next[questionId] = previousAnswer;
+        }
+
+        return next;
+      });
+
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Failed to save answer. Please try again.",
+      );
+    } finally {
+      setSavingQuestionId(null);
     }
   };
 
@@ -141,6 +224,7 @@ const TestRunner = ({
 
     try {
       setSubmitting(true);
+      setError(null);
 
       const res = await fetch(
         `${import.meta.env.VITE_API_URL}/api/tests/${testId}/submit`,
@@ -150,15 +234,19 @@ const TestRunner = ({
         },
       );
 
-      const data: SubmitResponse & { message?: string } = await res.json();
+      const data = await tryParseJson<SubmitResponse & ApiMessageResponse>(res);
 
-      if (!res.ok) {
-        throw new Error(data.message || "Submit failed");
+      if (!res.ok || !data) {
+        throw new Error(data?.message || "Submit failed");
       }
 
       setResult(data);
     } catch (error) {
-      console.error("Submit test failed:", error);
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Failed to submit test. Please try again.",
+      );
     } finally {
       setSubmitting(false);
     }
@@ -166,8 +254,10 @@ const TestRunner = ({
 
   if (result) {
     return (
-      <div className="test-runner">
+      <div ref={runnerRef} className="test-runner">
         <h2 className="test-runner__result-title">Test Result</h2>
+
+        {error && <p className="test-runner__error">{error}</p>}
 
         <div className="test-runner__result-summary">
           <p>
@@ -180,6 +270,11 @@ const TestRunner = ({
           <p>
             <strong>Time bonus:</strong> {result.summary.timeBonus}
           </p>
+          {result.summary.expired && (
+            <p>
+              <strong>Status:</strong> Time expired
+            </p>
+          )}
         </div>
 
         <div className="test-runner__review">
@@ -263,16 +358,16 @@ const TestRunner = ({
 
   if (questions.length === 0 || !currentQuestion) {
     return (
-      <div className="test-runner">
+      <div ref={runnerRef} className="test-runner">
         <p>No questions available.</p>
       </div>
     );
   }
 
   return (
-    <div className="test-runner">
+    <div ref={runnerRef} className="test-runner">
       <div className="test-runner__top">
-        <p className="test-runner__timer">
+        <p className={timerClassName}>
           Time left: {minutes}:{seconds.toString().padStart(2, "0")}
         </p>
         <p className="test-runner__progress">
@@ -286,23 +381,38 @@ const TestRunner = ({
         </p>
       )}
 
+      {error && <p className="test-runner__error">{error}</p>}
+
       <div className="question-card">
-        <h3>
+        <h3 className="question-card__title">
           {currentQuestionIndex + 1}. {currentQuestion.question}
         </h3>
 
         <div className="question-card__options">
-          {currentQuestion.options.map((option, i) => (
-            <label key={i} className="question-card__option">
-              <input
-                type="radio"
-                checked={answers[currentQuestion.id] === i}
-                disabled={isTimeUp}
-                onChange={() => handleSelectAnswer(currentQuestion.id, i)}
-              />
-              <span>{option}</span>
-            </label>
-          ))}
+          {currentQuestion.options.map((option, i) => {
+            const isSelected = answers[currentQuestion.id] === i;
+            const isDisabled =
+              isTimeUp ||
+              submitting ||
+              savingQuestionId === currentQuestion.id;
+
+            return (
+              <label
+                key={i}
+                className={`question-card__option ${
+                  isSelected ? "question-card__option--selected" : ""
+                }`}
+              >
+                <input
+                  type="radio"
+                  checked={isSelected}
+                  disabled={isDisabled}
+                  onChange={() => handleSelectAnswer(currentQuestion.id, i)}
+                />
+                <span>{option}</span>
+              </label>
+            );
+          })}
         </div>
       </div>
 
@@ -313,21 +423,32 @@ const TestRunner = ({
 
       <div className="test-runner__actions">
         <button
+          type="button"
           onClick={handlePrevious}
-          disabled={currentQuestionIndex === 0 || isTimeUp}
+          disabled={currentQuestionIndex === 0 || isTimeUp || submitting}
           className="test-runner__button"
         >
           Previous
         </button>
 
         {currentQuestionIndex < questions.length - 1 && !isTimeUp ? (
-          <button onClick={handleNext} className="test-runner__button">
+          <button
+            type="button"
+            onClick={handleNext}
+            disabled={submitting}
+            className="test-runner__button"
+          >
             Next
           </button>
         ) : (
           <button
+            type="button"
             onClick={handleSubmitTest}
-            disabled={submitting || (!allQuestionsAnswered && !isTimeUp)}
+            disabled={
+              submitting ||
+              savingQuestionId !== null ||
+              (!allQuestionsAnswered && !isTimeUp)
+            }
             className="test-runner__button"
           >
             {submitting ? "Submitting..." : "Finish Test"}
