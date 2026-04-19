@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { CookieOptions, Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { db } from "../config/db";
 import { ResultSetHeader, RowDataPacket } from "mysql2";
@@ -41,6 +41,25 @@ interface MySqlError {
   code?: string;
   message?: string;
 }
+
+const getAuthCookieOptions = (): CookieOptions => {
+  const isProduction =
+    process.env.NODE_ENV === "production" ||
+    Boolean(process.env.RAILWAY_ENVIRONMENT || process.env.RAILWAY_PROJECT_ID);
+
+  return {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    maxAge: 60 * 60 * 1000,
+  };
+};
+
+const getClearAuthCookieOptions = (): CookieOptions => {
+  const { maxAge: _maxAge, ...options } = getAuthCookieOptions();
+
+  return options;
+};
 
 export const signup = async (req: Request, res: Response) => {
   try {
@@ -129,12 +148,7 @@ export const signup = async (req: Request, res: Response) => {
 
     const token = generateToken(result.insertId);
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      maxAge: 60 * 60 * 1000,
-    });
+    res.cookie("token", token, getAuthCookieOptions());
 
     return res.status(201).json({
       message: "User created successfully",
@@ -212,12 +226,7 @@ export const login = async (req: Request, res: Response) => {
 
     const token = generateToken(user.id);
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      maxAge: 60 * 60 * 1000,
-    });
+    res.cookie("token", token, getAuthCookieOptions());
 
     return res.status(200).json({
       message: "Login successful",
@@ -231,7 +240,7 @@ export const login = async (req: Request, res: Response) => {
   } catch (error: unknown) {
     const dbError = error as MySqlError;
 
-    console.error("Signup error:", error);
+    console.error("Login error:", error);
 
     if (dbError.code === "ER_DUP_ENTRY") {
       return res.status(400).json({
@@ -247,11 +256,7 @@ export const login = async (req: Request, res: Response) => {
 
 export const logout = async (_req: Request, res: Response) => {
   try {
-    res.clearCookie("token", {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
-    });
+    res.clearCookie("token", getClearAuthCookieOptions());
 
     return res.status(200).json({
       message: "Logged out successfully",
