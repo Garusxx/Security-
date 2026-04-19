@@ -43,7 +43,7 @@ const HomePage = ({
   const [attemptId, setAttemptId] = useState<number | null>(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [generationComplete, setGenerationComplete] = useState(false);
-  const isHeroCompact = Boolean(user && !testStarted && (loading || test));
+  const isHeroCompact = Boolean(user && (loading || test));
 
   useEffect(() => {
     const fetchCurrentTest = async () => {
