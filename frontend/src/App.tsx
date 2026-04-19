@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import HomePage from "./pages/HomePage";
 import Signup from "./components/Signup";
 import Login from "./components/Login";
+import PrivacyPolicy from "./components/PrivacyPolicy";
 
 function App() {
   const [user, setUser] = useState<null | {
@@ -11,6 +12,7 @@ function App() {
 
   const [showSignup, setShowSignup] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
+  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
 
   useEffect(() => {
     const fetchMe = async () => {
@@ -63,6 +65,7 @@ function App() {
           setShowSignup(false);
           setShowLogin(true);
         }}
+        onPrivacyClick={() => setShowPrivacyPolicy(true)}
       />
 
       {showSignup && (
@@ -73,6 +76,7 @@ function App() {
             setShowLogin(true);
           }}
           onSignupSuccess={(signedUpUser) => setUser(signedUpUser)}
+          onPrivacyClick={() => setShowPrivacyPolicy(true)}
         />
       )}
 
@@ -85,6 +89,10 @@ function App() {
           }}
           onLoginSuccess={(loggedInUser) => setUser(loggedInUser)}
         />
+      )}
+
+      {showPrivacyPolicy && (
+        <PrivacyPolicy onClose={() => setShowPrivacyPolicy(false)} />
       )}
     </>
   );

@@ -12,6 +12,7 @@ type HomePageProps = {
   onLogout: () => void;
   onSignupClick: () => void;
   onLoginClick: () => void;
+  onPrivacyClick: () => void;
 };
 
 type GeneratedTest = {
@@ -32,6 +33,7 @@ const HomePage = ({
   onLogout,
   onSignupClick,
   onLoginClick,
+  onPrivacyClick,
 }: HomePageProps) => {
   const [loading, setLoading] = useState(false);
   const [test, setTest] = useState<GeneratedTest | null>(null);
@@ -248,6 +250,14 @@ const HomePage = ({
         )}
 
         {error && <p className="error-message">{error}</p>}
+
+        <button
+          className="home-privacy-link"
+          type="button"
+          onClick={onPrivacyClick}
+        >
+          Privacy Policy
+        </button>
       </section>
 
       {isProfileOpen && (

@@ -184,6 +184,29 @@
   box-shadow: none;
 }
 
+.signup-privacy-text {
+  margin: -4px 0 0;
+  color: #9fd9b2;
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.signup-privacy-link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #86efac;
+  font-family: inherit;
+  font-size: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.signup-privacy-link:hover {
+  color: #ffffff;
+}
+
 .signup-success,
 .signup-error {
   margin: 0;

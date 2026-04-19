@@ -75,6 +75,25 @@
   cursor: not-allowed;
 }
 
+.home .home-privacy-link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #9fd9b2;
+  box-shadow: none;
+  font-size: 0.82rem;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.home .home-privacy-link:hover:not(:disabled) {
+  transform: none;
+  background: transparent;
+  color: #ffffff;
+  box-shadow: none;
+  text-decoration: underline;
+}
+
 /* ===== LOADING ===== */
 
 .loading-wrapper {

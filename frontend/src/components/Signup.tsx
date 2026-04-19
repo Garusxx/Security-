@@ -5,12 +5,14 @@ type SignupProps = {
   onClose: () => void;
   onSwitchToLogin?: () => void;
   onSignupSuccess?: (user: { username: string; avatar?: string }) => void;
+  onPrivacyClick?: () => void;
 };
 
 export default function Signup({
   onClose,
   onSwitchToLogin,
   onSignupSuccess,
+  onPrivacyClick,
 }: SignupProps) {
   const [formData, setFormData] = useState({
     username: "",
@@ -201,6 +203,18 @@ export default function Signup({
           >
             {loading ? "Creating account..." : "Sign Up"}
           </button>
+
+          <p className="signup-privacy-text">
+            By creating an account, you acknowledge the{" "}
+            <button
+              className="signup-privacy-link"
+              type="button"
+              onClick={onPrivacyClick}
+            >
+              Privacy Policy
+            </button>
+            .
+          </p>
 
           {message && <p className="signup-success">{message}</p>}
           {error && <p className="signup-error">{error}</p>}
