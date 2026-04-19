@@ -4,9 +4,14 @@ import "../style/signup.css";
 type SignupProps = {
   onClose: () => void;
   onSwitchToLogin?: () => void;
+  onSignupSuccess?: (user: { username: string; avatar?: string }) => void;
 };
 
-export default function Signup({ onClose, onSwitchToLogin }: SignupProps) {
+export default function Signup({
+  onClose,
+  onSwitchToLogin,
+  onSignupSuccess,
+}: SignupProps) {
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -75,6 +80,10 @@ export default function Signup({ onClose, onSwitchToLogin }: SignupProps) {
         throw new Error(data.message || "Signup failed");
       }
 
+      if (data.user && onSignupSuccess) {
+        onSignupSuccess(data.user);
+      }
+
       setMessage(data.message || "User created successfully");
 
       setFormData({
@@ -83,6 +92,10 @@ export default function Signup({ onClose, onSwitchToLogin }: SignupProps) {
         password: "",
         confirmPassword: "",
       });
+
+      setTimeout(() => {
+        onClose();
+      }, 700);
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);

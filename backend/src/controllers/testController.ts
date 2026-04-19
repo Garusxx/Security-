@@ -48,6 +48,7 @@ type OwnedTestRow = RowDataPacket & {
 type SaveAnswerAttemptRow = RowDataPacket & {
   id: number;
   user_id: number;
+  test_id: number;
   status: AttemptStatus;
   expires_at: Date;
 };
@@ -444,7 +445,7 @@ export const saveAnswer = async (req: AuthRequest, res: Response) => {
     }
 
     const [attemptRows] = await db.query<SaveAnswerAttemptRow[]>(
-      `SELECT id, user_id, status, expires_at
+      `SELECT id, user_id, test_id, status, expires_at
        FROM test_attempts
        WHERE id = ? AND user_id = ?
        LIMIT 1`,
@@ -471,6 +472,13 @@ export const saveAnswer = async (req: AuthRequest, res: Response) => {
          SET status = 'expired'
          WHERE id = ?`,
         [attemptId],
+      );
+
+      await db.query<ResultSetHeader>(
+        `UPDATE tests
+         SET status = 'expired'
+         WHERE id = ? AND user_id = ?`,
+        [attempt.test_id, userId],
       );
 
       return res.status(400).json({

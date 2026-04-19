@@ -72,6 +72,7 @@ function App() {
             setShowSignup(false);
             setShowLogin(true);
           }}
+          onSignupSuccess={(signedUpUser) => setUser(signedUpUser)}
         />
       )}
 
