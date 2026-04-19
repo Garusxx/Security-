@@ -65,7 +65,6 @@ function App() {
           setShowSignup(false);
           setShowLogin(true);
         }}
-        onPrivacyClick={() => setShowPrivacyPolicy(true)}
       />
 
       {showSignup && (
@@ -88,6 +87,7 @@ function App() {
             setShowSignup(true);
           }}
           onLoginSuccess={(loggedInUser) => setUser(loggedInUser)}
+          onPrivacyClick={() => setShowPrivacyPolicy(true)}
         />
       )}
 

@@ -5,12 +5,14 @@ type LoginProps = {
   onClose: () => void;
   onSwitchToSignup?: () => void;
   onLoginSuccess?: (user: { username: string; avatar?: string }) => void;
+  onPrivacyClick?: () => void;
 };
 
 export default function Login({
   onClose,
   onSwitchToSignup,
   onLoginSuccess,
+  onPrivacyClick,
 }: LoginProps) {
   const [formData, setFormData] = useState({
     email: "",
@@ -121,6 +123,18 @@ export default function Login({
 
           {message && <p className="login-success">{message}</p>}
           {error && <p className="login-error">{error}</p>}
+
+          <p className="login-privacy-text">
+            Review how account data is handled in the{" "}
+            <button
+              className="login-privacy-link"
+              type="button"
+              onClick={onPrivacyClick}
+            >
+              Privacy Policy
+            </button>
+            .
+          </p>
 
           <p className="login-switch-text">
             Don&apos;t have an account?{" "}

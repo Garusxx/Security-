@@ -184,6 +184,29 @@
   box-shadow: none;
 }
 
+.login-privacy-text {
+  margin: -4px 0 0;
+  color: #9fd9b2;
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.login-privacy-link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #86efac;
+  font-family: inherit;
+  font-size: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.login-privacy-link:hover {
+  color: #ffffff;
+}
+
 .login-success,
 .login-error {
   margin: 0;

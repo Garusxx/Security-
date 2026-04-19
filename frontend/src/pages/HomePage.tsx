@@ -12,7 +12,6 @@ type HomePageProps = {
   onLogout: () => void;
   onSignupClick: () => void;
   onLoginClick: () => void;
-  onPrivacyClick: () => void;
 };
 
 type GeneratedTest = {
@@ -33,7 +32,6 @@ const HomePage = ({
   onLogout,
   onSignupClick,
   onLoginClick,
-  onPrivacyClick,
 }: HomePageProps) => {
   const [loading, setLoading] = useState(false);
   const [test, setTest] = useState<GeneratedTest | null>(null);
@@ -44,6 +42,8 @@ const HomePage = ({
   const [timeLeft, setTimeLeft] = useState(0);
   const [attemptId, setAttemptId] = useState<number | null>(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [generationComplete, setGenerationComplete] = useState(false);
+  const isHeroCompact = Boolean(user && !testStarted && (loading || test));
 
   useEffect(() => {
     const fetchCurrentTest = async () => {
@@ -96,6 +96,7 @@ const HomePage = ({
       setTestStarted(false);
       setExpiresAt("");
       setTimeLeft(0);
+      setGenerationComplete(false);
 
       const res = await fetch(
         `${import.meta.env.VITE_API_URL}/api/tests/generate`,
@@ -122,6 +123,7 @@ const HomePage = ({
       }
 
       setTest(data.test);
+      setGenerationComplete(true);
     } catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message);
@@ -138,6 +140,7 @@ const HomePage = ({
 
     try {
       setError("");
+      setGenerationComplete(false);
 
       const res = await fetch(
         `${import.meta.env.VITE_API_URL}/api/tests/${test.id}/start`,
@@ -217,27 +220,87 @@ const HomePage = ({
       />
 
       <section className="home">
-        <h1>Start Security+ tests</h1>
+        <div
+          className={`home-hero ${isHeroCompact ? "home-hero--compact" : ""}`}
+          aria-label="Practice Security+ Under Pressure"
+        >
+          <div className="home-hero__visual" aria-hidden="true">
+            <div className="home-hero__shield">
+              <span className="home-hero__shield-check">✓</span>
+            </div>
+            <div className="home-hero__scanner" />
+            <div className="home-hero__node home-hero__node--one" />
+            <div className="home-hero__node home-hero__node--two" />
+            <div className="home-hero__node home-hero__node--three" />
+          </div>
+
+          <div className="home-hero__copy">
+            <p className="home-hero__eyebrow">Security+ Practice Lab</p>
+            <h1>Practice Security+ Under Pressure</h1>
+            <p className="home-hero__subtitle">
+              Timed questions, instant scoring, and focused explanations for
+              every mistake.
+            </p>
+          </div>
+        </div>
 
         {!user && <p>Please log in to start the test.</p>}
 
         {user && loading && (
-          <div className="loading-wrapper">
-            <p>Generating test...</p>
-            <div className="progress-bar">
-              <div className="progress-fill"></div>
+          <div className="generation-status" role="status" aria-live="polite">
+            <div className="generation-status__icon" aria-hidden="true">
+              <span />
+            </div>
+            <div className="generation-status__content">
+              <p className="generation-status__label">Building practice test</p>
+              <p className="generation-status__text">
+                Generating focused Security+ questions and answer explanations.
+              </p>
+              <div className="generation-status__bar">
+                <div className="generation-status__bar-fill" />
+              </div>
             </div>
           </div>
         )}
 
         {user && !loading && !test && !testStarted && (
-          <button onClick={handleGenerateTest}>Generate Test</button>
+          <button
+            className="home-action-button home-action-button--primary"
+            onClick={handleGenerateTest}
+          >
+            <span className="home-action-button__icon" aria-hidden="true">
+              +
+            </span>
+            Generate Test
+          </button>
         )}
 
         {user && !loading && test && !testStarted && (
-          <button onClick={handleStartTest}>
-            {test.status === "started" ? "Continue Test" : "Start Test"}
-          </button>
+          <div className="ready-panel">
+            {generationComplete && (
+              <div className="ready-panel__message" role="status">
+                <span className="ready-panel__icon" aria-hidden="true">
+                  ✓
+                </span>
+                <div>
+                  <p className="ready-panel__title">Generation complete</p>
+                  <p className="ready-panel__text">
+                    Your practice test is ready.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <button
+              className="home-action-button home-action-button--start"
+              onClick={handleStartTest}
+            >
+              <span className="home-action-button__icon" aria-hidden="true">
+                ▶
+              </span>
+              {test.status === "started" ? "Continue Test" : "Start Test"}
+            </button>
+          </div>
         )}
 
         {user && test && testStarted && (
@@ -250,14 +313,6 @@ const HomePage = ({
         )}
 
         {error && <p className="error-message">{error}</p>}
-
-        <button
-          className="home-privacy-link"
-          type="button"
-          onClick={onPrivacyClick}
-        >
-          Privacy Policy
-        </button>
       </section>
 
       {isProfileOpen && (
