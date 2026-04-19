@@ -370,7 +370,7 @@ const TestRunner = ({
           Time left: {minutes}:{seconds.toString().padStart(2, "0")}
         </p>
         <p className="test-runner__progress">
-          {currentQuestionIndex + 1} / {questions.length}
+          {currentQuestionIndex + 1}/{questions.length}
         </p>
       </div>
 
