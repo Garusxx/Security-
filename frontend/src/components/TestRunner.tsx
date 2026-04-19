@@ -53,6 +53,7 @@ const TestRunner = ({
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [result, setResult] = useState<SubmitResponse | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [showingResultTransition, setShowingResultTransition] = useState(false);
   const [savingQuestionId, setSavingQuestionId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -99,6 +100,7 @@ const TestRunner = ({
 
   const minutes = Math.max(0, Math.floor(timeLeft / 1000 / 60));
   const seconds = Math.max(0, Math.floor((timeLeft / 1000) % 60));
+  const timeLabel = `Time left: ${minutes}:${seconds.toString().padStart(2, "0")}`;
 
   const initialTimeLeft = Math.max(initialTimeLeftRef.current, 1);
 
@@ -113,6 +115,13 @@ const TestRunner = ({
       : timeRatio <= 0.5
         ? "test-runner__timer test-runner__timer--warning"
         : "test-runner__timer test-runner__timer--safe";
+
+  const runnerClassName =
+    timeRatio <= 0.2
+      ? "test-runner test-runner--time-danger"
+      : timeRatio <= 0.5
+        ? "test-runner test-runner--time-warning"
+        : "test-runner";
 
   const answeredCount = Object.keys(answers).length;
   const allQuestionsAnswered = answeredCount === questions.length;
@@ -152,6 +161,10 @@ const TestRunner = ({
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
     }
+  };
+
+  const handleGoToQuestion = (questionIndex: number) => {
+    setCurrentQuestionIndex(questionIndex);
   };
 
   const handleSelectAnswer = async (
@@ -239,8 +252,16 @@ const TestRunner = ({
         throw new Error(data?.message || "Submit failed");
       }
 
+      setShowingResultTransition(true);
+
+      await new Promise((resolve) => {
+        window.setTimeout(resolve, 1150);
+      });
+
       setResult(data);
     } catch (error) {
+      setShowingResultTransition(false);
+
       setError(
         error instanceof Error
           ? error.message
@@ -248,6 +269,7 @@ const TestRunner = ({
       );
     } finally {
       setSubmitting(false);
+      setShowingResultTransition(false);
     }
   };
 
@@ -259,20 +281,28 @@ const TestRunner = ({
         {error && <p className="test-runner__error">{error}</p>}
 
         <div className="test-runner__result-summary">
-          <p>
-            <strong>Score:</strong> {result.summary.score}
-          </p>
-          <p>
-            <strong>Correct:</strong> {result.summary.correctAnswers} /{" "}
-            {result.summary.totalQuestions}
-          </p>
-          <p>
-            <strong>Time bonus:</strong> {result.summary.timeBonus}
-          </p>
+          <div className="test-runner__summary-card">
+            <span className="test-runner__summary-label">Score</span>
+            <strong>{result.summary.score}</strong>
+          </div>
+
+          <div className="test-runner__summary-card">
+            <span className="test-runner__summary-label">Correct</span>
+            <strong>
+              {result.summary.correctAnswers}/{result.summary.totalQuestions}
+            </strong>
+          </div>
+
+          <div className="test-runner__summary-card">
+            <span className="test-runner__summary-label">Time bonus</span>
+            <strong>{result.summary.timeBonus}</strong>
+          </div>
+
           {result.summary.expired && (
-            <p>
-              <strong>Status:</strong> Time expired
-            </p>
+            <div className="test-runner__summary-card test-runner__summary-card--expired">
+              <span className="test-runner__summary-label">Status</span>
+              <strong>Time expired</strong>
+            </div>
           )}
         </div>
 
@@ -280,7 +310,9 @@ const TestRunner = ({
           <h3>Review</h3>
 
           {result.results.filter((item) => !item.isCorrect).length === 0 ? (
-            <p>Perfect score — all answers were correct.</p>
+            <p className="test-runner__perfect-score">
+              Perfect score - all answers were correct.
+            </p>
           ) : (
             result.results
               .filter((item) => !item.isCorrect)
@@ -296,17 +328,21 @@ const TestRunner = ({
                       {item.question}
                     </p>
 
-                    <p>
-                      <strong>Your answer:</strong>{" "}
-                      {item.selectedAnswer !== null
-                        ? item.options[item.selectedAnswer]
-                        : "No answer"}
-                    </p>
+                    <div className="test-runner__answer-compare">
+                      <div className="test-runner__answer-box test-runner__answer-box--wrong">
+                        <span>Your answer</span>
+                        <strong>
+                          {item.selectedAnswer !== null
+                            ? item.options[item.selectedAnswer]
+                            : "No answer"}
+                        </strong>
+                      </div>
 
-                    <p>
-                      <strong>Correct answer:</strong>{" "}
-                      {item.options[item.correctAnswer]}
-                    </p>
+                      <div className="test-runner__answer-box test-runner__answer-box--correct">
+                        <span>Correct answer</span>
+                        <strong>{item.options[item.correctAnswer]}</strong>
+                      </div>
+                    </div>
 
                     <div className="test-runner__explanation-blocks">
                       {parsed.why && (
@@ -364,12 +400,15 @@ const TestRunner = ({
   }
 
   return (
-    <div ref={runnerRef} className="test-runner">
+    <div ref={runnerRef} className={runnerClassName}>
       <div className="test-runner__top">
-        <p className={timerClassName}>
-          Time left: {minutes}:{seconds.toString().padStart(2, "0")}
+        <p className={timerClassName} data-text={timeLabel}>
+          {timeLabel}
         </p>
-        <p className="test-runner__progress">
+        <p
+          className="test-runner__progress"
+          data-text={`${currentQuestionIndex + 1}/${questions.length}`}
+        >
           {currentQuestionIndex + 1}/{questions.length}
         </p>
       </div>
@@ -404,10 +443,39 @@ const TestRunner = ({
         </div>
       )}
 
+      <div className="test-runner__question-dock" aria-label="Question navigation">
+        {questions.map((question, index) => {
+          const isAnswered = answers[question.id] !== undefined;
+          const isCurrent = currentQuestionIndex === index;
+
+          return (
+            <button
+              key={question.id}
+              type="button"
+              className={`test-runner__question-light ${
+                isAnswered ? "test-runner__question-light--answered" : ""
+              } ${
+                isCurrent ? "test-runner__question-light--current" : ""
+              }`}
+              onClick={() => handleGoToQuestion(index)}
+              aria-label={`Go to question ${index + 1}${
+                isAnswered ? ", answered" : ", not answered"
+              }`}
+              aria-current={isCurrent ? "step" : undefined}
+            >
+              {isAnswered ? "✓" : index + 1}
+            </button>
+          );
+        })}
+      </div>
+
       {error && <p className="test-runner__error">{error}</p>}
 
       <div className="question-card">
-        <h3 className="question-card__title">
+        <h3
+          className="question-card__title"
+          data-text={`${currentQuestionIndex + 1}. ${currentQuestion.question}`}
+        >
           {currentQuestionIndex + 1}. {currentQuestion.question}
         </h3>
 
@@ -432,7 +500,7 @@ const TestRunner = ({
                   disabled={isDisabled}
                   onChange={() => handleSelectAnswer(currentQuestion.id, i)}
                 />
-                <span>{option}</span>
+                <span data-text={option}>{option}</span>
               </label>
             );
           })}
@@ -473,6 +541,38 @@ const TestRunner = ({
           </button>
         )}
       </div>
+
+      {showingResultTransition && (
+        <div
+          className="test-entry-glitch"
+          role="status"
+          aria-live="polite"
+          aria-label="Opening test result"
+        >
+          <div className="test-entry-glitch__matrix" aria-hidden="true">
+            <span>01001011 1100 0011</span>
+            <span>SCORING ANSWERS</span>
+            <span>10110100 0110 1001</span>
+            <span>RESULT CHANNEL OPEN</span>
+            <span>00101101 1110 0101</span>
+            <span>LOADING REPORT</span>
+            <span>0110 0001 1010</span>
+            <span>VERIFYING SCORE</span>
+            <span>11001100 01010110</span>
+            <span>ACCESS GRANTED</span>
+          </div>
+
+          <div className="test-entry-glitch__panel">
+            <p className="test-entry-glitch__eyebrow">Test submitted</p>
+            <p className="test-entry-glitch__title" data-text="Opening Result">
+              Opening Result
+            </p>
+            <div className="test-entry-glitch__bar">
+              <span />
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
