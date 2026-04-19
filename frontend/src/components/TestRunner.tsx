@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import TestProgressBar from "./TestProgressBar";
 import "../style/testRunner.css";
 
 type Question = {
@@ -439,11 +438,6 @@ const TestRunner = ({
           })}
         </div>
       </div>
-
-      <TestProgressBar
-        totalQuestions={questions.length}
-        answeredQuestions={answeredCount}
-      />
 
       <div className="test-runner__actions">
         <button
