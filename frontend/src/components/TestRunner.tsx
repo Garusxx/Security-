@@ -375,10 +375,34 @@ const TestRunner = ({
         </p>
       </div>
 
-      {isTimeUp && (
-        <p className="test-runner__time-up">
-          Time is up. You can no longer change answers.
-        </p>
+      {(isTimeUp || !allQuestionsAnswered) && (
+        <div className="test-runner__alert-dock" aria-label="Test alerts">
+          {isTimeUp && (
+            <span
+              className="test-runner__alert-icon test-runner__alert-icon--time"
+              data-tooltip="Time is up. You can no longer change answers."
+              title="Time is up. You can no longer change answers."
+              tabIndex={0}
+              role="status"
+              aria-label="Time is up. You can no longer change answers."
+            >
+              T
+            </span>
+          )}
+
+          {!allQuestionsAnswered && !isTimeUp && (
+            <span
+              className="test-runner__alert-icon test-runner__alert-icon--answers"
+              data-tooltip="Answer all questions to unlock Finish Test."
+              title="Answer all questions to unlock Finish Test."
+              tabIndex={0}
+              role="status"
+              aria-label="Answer all questions to unlock Finish Test."
+            >
+              !
+            </span>
+          )}
+        </div>
       )}
 
       {error && <p className="test-runner__error">{error}</p>}
@@ -456,11 +480,6 @@ const TestRunner = ({
         )}
       </div>
 
-      {!allQuestionsAnswered && !isTimeUp && (
-        <p className="test-runner__finish-hint">
-          Answer all questions to unlock Finish Test.
-        </p>
-      )}
     </div>
   );
 };

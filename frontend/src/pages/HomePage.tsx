@@ -43,6 +43,7 @@ const HomePage = ({
   const [attemptId, setAttemptId] = useState<number | null>(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [generationComplete, setGenerationComplete] = useState(false);
+  const [isEnteringTest, setIsEnteringTest] = useState(false);
   const isHeroCompact = Boolean(user && (loading || test));
 
   useEffect(() => {
@@ -136,11 +137,12 @@ const HomePage = ({
   };
 
   const handleStartTest = async () => {
-    if (!test) return;
+    if (!test || isEnteringTest) return;
 
     try {
       setError("");
       setGenerationComplete(false);
+      setIsEnteringTest(true);
 
       const res = await fetch(
         `${import.meta.env.VITE_API_URL}/api/tests/${test.id}/start`,
@@ -197,13 +199,22 @@ const HomePage = ({
 
       setExpiresAt(data.expiresAt);
       setQuestions(testData.test.questions);
+
+      await new Promise((resolve) => {
+        window.setTimeout(resolve, 1150);
+      });
+
       setTestStarted(true);
     } catch (error: unknown) {
+      setIsEnteringTest(false);
+
       if (error instanceof Error) {
         setError(error.message);
       } else {
         setError("Something went wrong");
       }
+    } finally {
+      setIsEnteringTest(false);
     }
   };
 
@@ -294,11 +305,16 @@ const HomePage = ({
             <button
               className="home-action-button home-action-button--start"
               onClick={handleStartTest}
+              disabled={isEnteringTest}
             >
               <span className="home-action-button__icon" aria-hidden="true">
                 ▶
               </span>
-              {test.status === "started" ? "Continue Test" : "Start Test"}
+              {isEnteringTest
+                ? "Entering Test"
+                : test.status === "started"
+                  ? "Continue Test"
+                  : "Start Test"}
             </button>
           </div>
         )}
@@ -314,6 +330,38 @@ const HomePage = ({
 
         {error && <p className="error-message">{error}</p>}
       </section>
+
+      {isEnteringTest && (
+        <div
+          className="test-entry-glitch"
+          role="status"
+          aria-live="polite"
+          aria-label="Entering test"
+        >
+          <div className="test-entry-glitch__matrix" aria-hidden="true">
+            <span>01001011 1100 0011</span>
+            <span>AUTH TOKEN VERIFIED</span>
+            <span>10110100 0110 1001</span>
+            <span>SESSION HANDSHAKE</span>
+            <span>00101101 1110 0101</span>
+            <span>LOADING TEST RUNNER</span>
+            <span>0110 0001 1010</span>
+            <span>FIREWALL BYPASSED</span>
+            <span>11001100 01010110</span>
+            <span>ACCESS GRANTED</span>
+          </div>
+
+          <div className="test-entry-glitch__panel">
+            <p className="test-entry-glitch__eyebrow">Secure channel opened</p>
+            <p className="test-entry-glitch__title" data-text="Entering Test">
+              Entering Test
+            </p>
+            <div className="test-entry-glitch__bar">
+              <span />
+            </div>
+          </div>
+        </div>
+      )}
 
       {isProfileOpen && (
         <ProfilePanel onClose={() => setIsProfileOpen(false)} />

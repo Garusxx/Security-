@@ -609,6 +609,293 @@
   }
 }
 
+/* ===== TEST ENTRY GLITCH ===== */
+
+.test-entry-glitch {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    linear-gradient(rgba(94, 226, 143, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(94, 226, 143, 0.07) 1px, transparent 1px),
+    radial-gradient(circle at center, rgba(13, 35, 22, 0.92), #010403 74%);
+  background-size:
+    18px 18px,
+    18px 18px,
+    auto;
+  animation:
+    entryGlitchReveal 1.15s ease both,
+    entryGridDrift 0.8s linear infinite;
+}
+
+.test-entry-glitch::before,
+.test-entry-glitch::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.test-entry-glitch::before {
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(223, 255, 240, 0.08) 0,
+    rgba(223, 255, 240, 0.08) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+  animation: entryScanLines 0.22s linear infinite;
+}
+
+.test-entry-glitch::after {
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(74, 222, 128, 0.18) 48%,
+    rgba(223, 255, 240, 0.34) 50%,
+    rgba(74, 222, 128, 0.18) 52%,
+    transparent 100%
+  );
+  transform: translateY(-120%);
+  animation: entryScanBeam 0.86s ease-in-out both;
+}
+
+.test-entry-glitch__matrix {
+  position: absolute;
+  inset: -34% -6% auto;
+  display: grid;
+  grid-template-columns: repeat(10, minmax(90px, 1fr));
+  gap: 0.65rem;
+  color: rgba(134, 239, 172, 0.34);
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-align: left;
+  text-transform: uppercase;
+  transform: rotate(-6deg);
+  animation: entryMatrixFall 1.15s linear both;
+}
+
+.test-entry-glitch__matrix span {
+  writing-mode: vertical-rl;
+  min-height: 320px;
+  text-shadow:
+    0 0 8px rgba(134, 239, 172, 0.55),
+    0 0 18px rgba(74, 222, 128, 0.22);
+}
+
+.test-entry-glitch__matrix span:nth-child(2n) {
+  animation: entryRainPulse 0.55s linear infinite;
+}
+
+.test-entry-glitch__matrix span:nth-child(3n) {
+  animation: entryRainPulse 0.7s linear infinite reverse;
+}
+
+.test-entry-glitch__panel {
+  position: relative;
+  z-index: 1;
+  width: min(460px, calc(100vw - 2rem));
+  padding: 1.25rem;
+  border: 1px solid #86efac;
+  background: rgba(5, 11, 8, 0.86);
+  box-shadow:
+    0 0 0 1px rgba(223, 255, 240, 0.08),
+    0 0 48px rgba(94, 226, 143, 0.28),
+    inset 0 0 26px rgba(94, 226, 143, 0.1);
+  text-align: left;
+  animation: entryPanelGlitch 1.15s steps(1, end) both;
+}
+
+.test-entry-glitch__eyebrow {
+  margin: 0 0 0.55rem;
+  color: #6ee7b7;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.test-entry-glitch__title {
+  position: relative;
+  margin: 0;
+  color: #f0fff4;
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.1;
+  text-transform: uppercase;
+  text-shadow: 0 0 14px rgba(134, 239, 172, 0.28);
+}
+
+.test-entry-glitch__title::before,
+.test-entry-glitch__title::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.test-entry-glitch__title::before {
+  color: #86efac;
+  transform: translate(-2px, 0);
+  clip-path: inset(0 0 58% 0);
+  animation: entryTextGlitchA 0.36s steps(2, end) infinite;
+}
+
+.test-entry-glitch__title::after {
+  color: #bbf7d0;
+  transform: translate(2px, 0);
+  clip-path: inset(52% 0 0 0);
+  animation: entryTextGlitchB 0.42s steps(2, end) infinite;
+}
+
+.test-entry-glitch__bar {
+  height: 12px;
+  margin-top: 1rem;
+  padding: 2px;
+  border: 1px solid #355d45;
+  background: #07100b;
+  overflow: hidden;
+}
+
+.test-entry-glitch__bar span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #16a34a, #dffff0, #22c55e);
+  transform-origin: left;
+  animation: entryLoad 1.05s ease-out both;
+}
+
+@keyframes entryGlitchReveal {
+  0% {
+    opacity: 0;
+    transform: scale(1.02);
+  }
+  12%,
+  18% {
+    opacity: 1;
+    transform: translateX(-8px) scale(1.01);
+  }
+  15%,
+  22% {
+    transform: translateX(8px) scale(1.01);
+  }
+  78% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes entryScanLines {
+  to {
+    transform: translateY(4px);
+  }
+}
+
+@keyframes entryGridDrift {
+  to {
+    background-position:
+      0 18px,
+      18px 0,
+      center;
+  }
+}
+
+@keyframes entryScanBeam {
+  0% {
+    transform: translateY(-120%);
+  }
+  100% {
+    transform: translateY(120%);
+  }
+}
+
+@keyframes entryMatrixFall {
+  0% {
+    opacity: 0;
+    transform: translateY(-22%) rotate(-6deg);
+  }
+  16%,
+  82% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(42%) rotate(-6deg);
+  }
+}
+
+@keyframes entryRainPulse {
+  0%,
+  100% {
+    opacity: 0.26;
+  }
+  50% {
+    opacity: 0.72;
+  }
+}
+
+@keyframes entryPanelGlitch {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  12% {
+    opacity: 1;
+    transform: translate(-8px, 0);
+  }
+  16% {
+    transform: translate(8px, 0);
+  }
+  20%,
+  86% {
+    transform: translate(0, 0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes entryTextGlitchA {
+  0%,
+  100% {
+    transform: translate(-2px, 0);
+  }
+  50% {
+    transform: translate(5px, -1px);
+  }
+}
+
+@keyframes entryTextGlitchB {
+  0%,
+  100% {
+    transform: translate(2px, 0);
+  }
+  50% {
+    transform: translate(-5px, 1px);
+  }
+}
+
+@keyframes entryLoad {
+  0% {
+    transform: scaleX(0);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+
 /* ===== ERROR ===== */
 
 .error-message {
@@ -682,5 +969,28 @@
 
   .ready-panel__message {
     align-items: flex-start;
+  }
+
+  .test-entry-glitch__panel {
+    width: calc(100vw - 2rem);
+    padding: 1rem;
+  }
+
+  .test-entry-glitch__title {
+    font-size: 1.45rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .test-entry-glitch,
+  .test-entry-glitch::before,
+  .test-entry-glitch::after,
+  .test-entry-glitch__matrix,
+  .test-entry-glitch__panel,
+  .test-entry-glitch__title::before,
+  .test-entry-glitch__title::after,
+  .test-entry-glitch__bar span {
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
   }
 }
