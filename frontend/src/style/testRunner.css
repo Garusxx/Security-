@@ -179,11 +179,6 @@
     transform: translateY(0);
   }
 
-
-  .test-runner__question-light:hover {
-    transform: translateY(-2px);
-  }
-
   .question-card {
     padding: 16px;
   }

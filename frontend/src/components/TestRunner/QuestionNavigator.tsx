@@ -15,10 +15,7 @@ const QuestionNavigator = ({
   onGoToQuestion,
 }: QuestionNavigatorProps) => {
   return (
-    <div
-      className="test-runner__question-dock"
-      aria-label="Question navigation"
-    >
+    <div className="question-navigator" aria-label="Question navigation">
       {questions.map((question, index) => {
         const isAnswered = answers[question.id] !== undefined;
         const isCurrent = currentQuestionIndex === index;
@@ -27,9 +24,9 @@ const QuestionNavigator = ({
           <button
             key={question.id}
             type="button"
-            className={`test-runner__question-light ${
-              isAnswered ? "test-runner__question-light--answered" : ""
-            } ${isCurrent ? "test-runner__question-light--current" : ""}`}
+            className={`question-navigator__item ${
+              isAnswered ? "question-navigator__item--answered" : ""
+            } ${isCurrent ? "question-navigator__item--current" : ""}`}
             onClick={() => onGoToQuestion(index)}
             aria-label={`Go to question ${index + 1}${
               isAnswered ? ", answered" : ", not answered"
