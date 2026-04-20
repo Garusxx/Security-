@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import "../../style/testRunner.css";
 import QuestionCard from "./QuestionCard";
 import TestHeader from "./TestHeader";
+import TestResult from "./TestResult";
+import QuestionNavigator from "./QuestionNavigator";
 
 import type {
   SubmitResponse,
@@ -79,22 +81,6 @@ const TestRunner = ({
   const allQuestionsAnswered = answeredCount === questions.length;
   const currentQuestion = questions[currentQuestionIndex];
 
-  const parseExplanation = (explanation: string) => {
-    const whyMatch = explanation.match(
-      /Why\s*:\s*([\s\S]*?)(?=Memory\s*hook\s*:|Trap\s*:|$)/i,
-    );
-    const memoryHookMatch = explanation.match(
-      /Memory\s*hook\s*:\s*([\s\S]*?)(?=Trap\s*:|$)/i,
-    );
-    const trapMatch = explanation.match(/Trap\s*:\s*([\s\S]*)/i);
-
-    return {
-      why: whyMatch?.[1]?.trim() ?? "",
-      memoryHook: memoryHookMatch?.[1]?.trim() ?? "",
-      trap: trapMatch?.[1]?.trim() ?? "",
-    };
-  };
-
   const tryParseJson = async <T,>(res: Response): Promise<T | null> => {
     try {
       return (await res.json()) as T;
@@ -116,7 +102,9 @@ const TestRunner = ({
   };
 
   const handleGoToQuestion = (questionIndex: number) => {
-    setCurrentQuestionIndex(questionIndex);
+    if (questionIndex >= 0 && questionIndex < questions.length) {
+      setCurrentQuestionIndex(questionIndex);
+    }
   };
 
   const handleSelectAnswer = async (
@@ -229,121 +217,14 @@ const TestRunner = ({
       setShowingResultTransition(false);
     }
   };
-
   if (result) {
     return (
-      <div ref={runnerRef} className="test-runner">
-        <h2 className="test-runner__result-title">Test Result</h2>
-
-        {error && <p className="test-runner__error">{error}</p>}
-
-        <div className="test-runner__result-summary">
-          <div className="test-runner__summary-card">
-            <span className="test-runner__summary-label">Score</span>
-            <strong>{result.summary.score}</strong>
-          </div>
-
-          <div className="test-runner__summary-card">
-            <span className="test-runner__summary-label">Correct</span>
-            <strong>
-              {result.summary.correctAnswers}/{result.summary.totalQuestions}
-            </strong>
-          </div>
-
-          <div className="test-runner__summary-card">
-            <span className="test-runner__summary-label">Time bonus</span>
-            <strong>{result.summary.timeBonus}</strong>
-          </div>
-
-          {result.summary.expired && (
-            <div className="test-runner__summary-card test-runner__summary-card--expired">
-              <span className="test-runner__summary-label">Status</span>
-              <strong>Time expired</strong>
-            </div>
-          )}
-        </div>
-
-        <div className="test-runner__review">
-          <h3>Review</h3>
-
-          {result.results.filter((item) => !item.isCorrect).length === 0 ? (
-            <p className="test-runner__perfect-score">
-              Perfect score - all answers were correct.
-            </p>
-          ) : (
-            result.results
-              .filter((item) => !item.isCorrect)
-              .map((item) => {
-                const parsed = parseExplanation(item.explanation);
-
-                return (
-                  <div
-                    key={item.questionId}
-                    className="test-runner__review-card"
-                  >
-                    <p className="test-runner__review-question">
-                      {item.question}
-                    </p>
-
-                    <div className="test-runner__answer-compare">
-                      <div className="test-runner__answer-box test-runner__answer-box--wrong">
-                        <span>Your answer</span>
-                        <strong>
-                          {item.selectedAnswer !== null
-                            ? item.options[item.selectedAnswer]
-                            : "No answer"}
-                        </strong>
-                      </div>
-
-                      <div className="test-runner__answer-box test-runner__answer-box--correct">
-                        <span>Correct answer</span>
-                        <strong>{item.options[item.correctAnswer]}</strong>
-                      </div>
-                    </div>
-
-                    <div className="test-runner__explanation-blocks">
-                      {parsed.why && (
-                        <div className="test-runner__explanation-item">
-                          <span>💡</span>
-                          <div>
-                            <strong>Why:</strong> {parsed.why}
-                          </div>
-                        </div>
-                      )}
-
-                      {parsed.memoryHook && (
-                        <div className="test-runner__explanation-item">
-                          <span>🧠</span>
-                          <div>
-                            <strong>Memory hook:</strong> {parsed.memoryHook}
-                          </div>
-                        </div>
-                      )}
-
-                      {parsed.trap && (
-                        <div className="test-runner__explanation-item">
-                          <span>⚠️</span>
-                          <div>
-                            <strong>Trap:</strong> {parsed.trap}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                );
-              })
-          )}
-        </div>
-
-        <div className="test-runner__result-actions">
-          <button
-            type="button"
-            onClick={() => window.location.reload()}
-            className="test-runner__button"
-          >
-            New Test
-          </button>
-        </div>
+      <div ref={runnerRef}>
+        <TestResult
+          result={result}
+          error={error}
+          onRestart={() => window.location.reload()}
+        />
       </div>
     );
   }
@@ -365,33 +246,12 @@ const TestRunner = ({
         totalQuestions={questions.length}
         allQuestionsAnswered={allQuestionsAnswered}
       />
-
-      <div
-        className="test-runner__question-dock"
-        aria-label="Question navigation"
-      >
-        {questions.map((question, index) => {
-          const isAnswered = answers[question.id] !== undefined;
-          const isCurrent = currentQuestionIndex === index;
-
-          return (
-            <button
-              key={question.id}
-              type="button"
-              className={`test-runner__question-light ${
-                isAnswered ? "test-runner__question-light--answered" : ""
-              } ${isCurrent ? "test-runner__question-light--current" : ""}`}
-              onClick={() => handleGoToQuestion(index)}
-              aria-label={`Go to question ${index + 1}${
-                isAnswered ? ", answered" : ", not answered"
-              }`}
-              aria-current={isCurrent ? "step" : undefined}
-            >
-              {isAnswered ? "✓" : index + 1}
-            </button>
-          );
-        })}
-      </div>
+      <QuestionNavigator
+        questions={questions}
+        answers={answers}
+        currentQuestionIndex={currentQuestionIndex}
+        onGoToQuestion={handleGoToQuestion}
+      />
 
       {error && <p className="test-runner__error">{error}</p>}
 
