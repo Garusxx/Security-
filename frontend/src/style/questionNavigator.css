@@ -1,0 +1,10 @@
+.test-runner__question-dock {
+  position: relative;
+  top: auto;
+  right: auto;
+  grid-auto-flow: row;
+  grid-template-rows: none;
+  grid-template-columns: repeat(7, 32px);
+  grid-auto-columns: auto;
+  margin: 0 0 14px;
+}

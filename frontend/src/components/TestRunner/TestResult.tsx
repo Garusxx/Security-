@@ -52,8 +52,18 @@ const TestResult = ({ result, error, onRestart }: TestResultProps) => {
 
         {result.summary.expired && (
           <div className="test-runner__summary-card test-runner__summary-card--expired">
-            <span className="test-runner__summary-label">Status</span>
-            <strong>Time expired</strong>
+            <div className="test-runner__summary-main">
+              <span className="test-runner__summary-label">Status</span>
+              <strong>Time expired</strong>
+            </div>
+
+            <div
+              className="test-runner__summary-icon"
+              aria-hidden="true"
+              title="Time expired"
+            >
+              !
+            </div>
           </div>
         )}
       </div>
@@ -91,28 +101,46 @@ const TestResult = ({ result, error, onRestart }: TestResultProps) => {
 
                 <div className="test-runner__explanation-blocks">
                   {parsed.why && (
-                    <div className="test-runner__explanation-item">
-                      <span>💡</span>
-                      <div>
-                        <strong>Why:</strong> {parsed.why}
+                    <div className="test-runner__explanation-item test-runner__explanation-item--why">
+                      <div className="test-runner__explanation-content">
+                        <strong>Why</strong>
+                        <p>{parsed.why}</p>
+                      </div>
+                      <div
+                        className="test-runner__explanation-badge"
+                        aria-hidden="true"
+                      >
+                        WHY//
                       </div>
                     </div>
                   )}
 
                   {parsed.memoryHook && (
-                    <div className="test-runner__explanation-item">
-                      <span>🧠</span>
-                      <div>
-                        <strong>Memory hook:</strong> {parsed.memoryHook}
+                    <div className="test-runner__explanation-item test-runner__explanation-item--memory">
+                      <div className="test-runner__explanation-content">
+                        <strong>Memory hook</strong>
+                        <p>{parsed.memoryHook}</p>
+                      </div>
+                      <div
+                        className="test-runner__explanation-badge"
+                        aria-hidden="true"
+                      >
+                        MEM//
                       </div>
                     </div>
                   )}
 
                   {parsed.trap && (
-                    <div className="test-runner__explanation-item">
-                      <span>⚠️</span>
-                      <div>
-                        <strong>Trap:</strong> {parsed.trap}
+                    <div className="test-runner__explanation-item test-runner__explanation-item--trap">
+                      <div className="test-runner__explanation-content">
+                        <strong>Trap</strong>
+                        <p>{parsed.trap}</p>
+                      </div>
+                      <div
+                        className="test-runner__explanation-badge"
+                        aria-hidden="true"
+                      >
+                        TRAP//
                       </div>
                     </div>
                   )}
