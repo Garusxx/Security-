@@ -1,6 +1,5 @@
 import type { Question } from "./test";
 import "../../style/questionNavigator.css";
-
 type QuestionNavigatorProps = {
   questions: Question[];
   answers: Record<number, number>;
