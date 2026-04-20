@@ -1,4 +1,5 @@
 import type { SubmitResponse } from "./test";
+import "../../style/testResult.css";
 
 type TestResultProps = {
   result: SubmitResponse;
