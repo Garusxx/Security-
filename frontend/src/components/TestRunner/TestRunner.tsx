@@ -1,47 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import "../style/testRunner.css";
+import "../../style/testRunner.css";
+import QuestionCard from "./QuestionCard";
+import TestHeader from "./TestHeader";
 
-type Question = {
-  id: number;
-  question: string;
-  options: [string, string, string, string];
-  selectedAnswer: number | null;
-};
-
-type SubmitSummary = {
-  totalQuestions: number;
-  correctAnswers: number;
-  timeBonus: number;
-  score: number;
-  expired?: boolean;
-};
-
-type SubmitResultItem = {
-  questionId: number;
-  question: string;
-  options: [string, string, string, string];
-  selectedAnswer: number | null;
-  correctAnswer: number;
-  isCorrect: boolean;
-  explanation: string;
-};
-
-type SubmitResponse = {
-  message: string;
-  summary: SubmitSummary;
-  results: SubmitResultItem[];
-};
-
-type ApiMessageResponse = {
-  message?: string;
-};
-
-type TestRunnerProps = {
-  questions: Question[];
-  timeLeft: number;
-  attemptId: number | null;
-  testId: number;
-};
+import type {
+  SubmitResponse,
+  ApiMessageResponse,
+  TestRunnerProps,
+} from "./test";
 
 const TestRunner = ({
   questions,
@@ -98,23 +64,9 @@ const TestRunner = ({
     }
   }, [timeLeft]);
 
-  const minutes = Math.max(0, Math.floor(timeLeft / 1000 / 60));
-  const seconds = Math.max(0, Math.floor((timeLeft / 1000) % 60));
-  const timeLabel = `Time left: ${minutes}:${seconds.toString().padStart(2, "0")}`;
-
   const initialTimeLeft = Math.max(initialTimeLeftRef.current, 1);
 
-  const timeRatio = Math.max(
-    0,
-    Math.min(1, timeLeft / initialTimeLeft),
-  );
-
-  const timerClassName =
-    timeRatio <= 0.2
-      ? "test-runner__timer test-runner__timer--danger"
-      : timeRatio <= 0.5
-        ? "test-runner__timer test-runner__timer--warning"
-        : "test-runner__timer test-runner__timer--safe";
+  const timeRatio = Math.max(0, Math.min(1, timeLeft / initialTimeLeft));
 
   const runnerClassName =
     timeRatio <= 0.2
@@ -171,7 +123,12 @@ const TestRunner = ({
     questionId: number,
     optionIndex: number,
   ) => {
-    if (!attemptId || isTimeUp || submitting || savingQuestionId === questionId) {
+    if (
+      !attemptId ||
+      isTimeUp ||
+      submitting ||
+      savingQuestionId === questionId
+    ) {
       return;
     }
 
@@ -401,49 +358,18 @@ const TestRunner = ({
 
   return (
     <div ref={runnerRef} className={runnerClassName}>
-      <div className="test-runner__top">
-        <p className={timerClassName} data-text={timeLabel}>
-          {timeLabel}
-        </p>
-        <p
-          className="test-runner__progress"
-          data-text={`${currentQuestionIndex + 1}/${questions.length}`}
-        >
-          {currentQuestionIndex + 1}/{questions.length}
-        </p>
-      </div>
+      <TestHeader
+        timeLeft={timeLeft}
+        initialTimeLeft={initialTimeLeft}
+        currentQuestionIndex={currentQuestionIndex}
+        totalQuestions={questions.length}
+        allQuestionsAnswered={allQuestionsAnswered}
+      />
 
-      {(isTimeUp || !allQuestionsAnswered) && (
-        <div className="test-runner__alert-dock" aria-label="Test alerts">
-          {isTimeUp && (
-            <span
-              className="test-runner__alert-icon test-runner__alert-icon--time"
-              data-tooltip="Time is up. You can no longer change answers."
-              title="Time is up. You can no longer change answers."
-              tabIndex={0}
-              role="status"
-              aria-label="Time is up. You can no longer change answers."
-            >
-              T
-            </span>
-          )}
-
-          {!allQuestionsAnswered && !isTimeUp && (
-            <span
-              className="test-runner__alert-icon test-runner__alert-icon--answers"
-              data-tooltip="Answer all questions to unlock Finish Test."
-              title="Answer all questions to unlock Finish Test."
-              tabIndex={0}
-              role="status"
-              aria-label="Answer all questions to unlock Finish Test."
-            >
-              !
-            </span>
-          )}
-        </div>
-      )}
-
-      <div className="test-runner__question-dock" aria-label="Question navigation">
+      <div
+        className="test-runner__question-dock"
+        aria-label="Question navigation"
+      >
         {questions.map((question, index) => {
           const isAnswered = answers[question.id] !== undefined;
           const isCurrent = currentQuestionIndex === index;
@@ -454,9 +380,7 @@ const TestRunner = ({
               type="button"
               className={`test-runner__question-light ${
                 isAnswered ? "test-runner__question-light--answered" : ""
-              } ${
-                isCurrent ? "test-runner__question-light--current" : ""
-              }`}
+              } ${isCurrent ? "test-runner__question-light--current" : ""}`}
               onClick={() => handleGoToQuestion(index)}
               aria-label={`Go to question ${index + 1}${
                 isAnswered ? ", answered" : ", not answered"
@@ -471,41 +395,14 @@ const TestRunner = ({
 
       {error && <p className="test-runner__error">{error}</p>}
 
-      <div className="question-card">
-        <h3
-          className="question-card__title"
-          data-text={`${currentQuestionIndex + 1}. ${currentQuestion.question}`}
-        >
-          {currentQuestionIndex + 1}. {currentQuestion.question}
-        </h3>
-
-        <div className="question-card__options">
-          {currentQuestion.options.map((option, i) => {
-            const isSelected = answers[currentQuestion.id] === i;
-            const isDisabled =
-              isTimeUp ||
-              submitting ||
-              savingQuestionId === currentQuestion.id;
-
-            return (
-              <label
-                key={i}
-                className={`question-card__option ${
-                  isSelected ? "question-card__option--selected" : ""
-                }`}
-              >
-                <input
-                  type="radio"
-                  checked={isSelected}
-                  disabled={isDisabled}
-                  onChange={() => handleSelectAnswer(currentQuestion.id, i)}
-                />
-                <span data-text={option}>{option}</span>
-              </label>
-            );
-          })}
-        </div>
-      </div>
+      <QuestionCard
+        questionNumber={currentQuestionIndex + 1}
+        question={currentQuestion}
+        selectedAnswer={answers[currentQuestion.id]}
+        isDisabled={isTimeUp || submitting}
+        isSaving={savingQuestionId === currentQuestion.id}
+        onSelectAnswer={handleSelectAnswer}
+      />
 
       <div className="test-runner__actions">
         <button
@@ -573,7 +470,6 @@ const TestRunner = ({
           </div>
         </div>
       )}
-
     </div>
   );
 };

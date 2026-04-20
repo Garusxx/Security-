@@ -1,5 +1,5 @@
 import NavBar from "../components/NavBar";
-import TestRunner from "../components/TestRunner";
+import TestRunner from "../components/TestRunner/TestRunner";
 import ProfilePanel from "../components/ProfilePanel";
 import { useState, useEffect } from "react";
 import "../style/homePage.css";
