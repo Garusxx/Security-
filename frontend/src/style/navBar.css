@@ -4,6 +4,7 @@
   right: 2rem;
   z-index: 100;
   font-family: "Courier New", Courier, monospace;
+  max-width: min(100% - 4rem, 42rem);
 }
 
 .navbar__right {
@@ -19,6 +20,7 @@
   align-items: center;
   gap: 0.65rem;
   padding: 0.45rem 0.8rem;
+  min-width: 0;
   background: #132018;
   border: 0.0625rem solid #355d45;
   box-shadow:
@@ -41,6 +43,9 @@
   font-weight: 700;
   color: #ecfdf5;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 10rem;
   letter-spacing: 0.03em;
 }
 
@@ -115,11 +120,12 @@
   transform: scale(0.98);
 }
 
-@media (max-width: 48rem) {
+@media (max-width: 768px) {
   .navbar {
     top: 1rem;
     right: 1rem;
     left: 1rem;
+    max-width: none;
   }
 
   .navbar__right {
@@ -135,5 +141,40 @@
 
   .navbar__username {
     display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .navbar {
+    top: 0.5rem;
+    right: 0.75rem;
+    left: 0.75rem;
+  }
+
+  .navbar__right {
+    gap: 0.4rem;
+    justify-content: flex-end;
+  }
+
+  .navbar__auth-btn,
+  .navbar__profile-btn {
+    flex: 0 1 auto;
+    min-width: 0;
+    padding: 0.55rem 0.75rem;
+    font-size: 0.74rem;
+    letter-spacing: 0.04em;
+  }
+
+  .navbar__user {
+    width: auto;
+    max-width: 3rem;
+    padding: 0.3rem;
+    justify-content: center;
+    order: 0;
+  }
+
+  .navbar__avatar {
+    width: 1.9rem;
+    height: 1.9rem;
   }
 }

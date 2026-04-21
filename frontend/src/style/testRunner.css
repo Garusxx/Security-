@@ -208,7 +208,7 @@
 
 /* ===== RESPONSIVE ===== */
 
-@media (max-width: 40rem) {
+@media (max-width: 768px) {
   .test-runner {
     padding: 1.125rem;
   }
@@ -250,5 +250,15 @@
 
   .test-runner__button {
     width: 100%;
+  }
+}
+
+@media (max-width: 1024px) {
+  .test-runner {
+    margin-top: 1.5rem;
+  }
+
+  .test-runner__actions {
+    justify-content: stretch;
   }
 }

@@ -287,7 +287,26 @@
   }
 }
 
-@media (max-width: 37.5rem) {
+@media (max-width: 768px) {
+  .test-entry-glitch__matrix {
+    grid-template-columns: repeat(6, minmax(4.5rem, 1fr));
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .test-entry-glitch__matrix {
+    inset: -18% -35% auto;
+    grid-template-columns: repeat(5, minmax(4rem, 1fr));
+    gap: 0.45rem;
+    font-size: 0.62rem;
+    opacity: 0.72;
+  }
+
+  .test-entry-glitch__matrix span {
+    min-height: 14rem;
+  }
+
   .test-entry-glitch__panel {
     width: calc(100vw - 2rem);
     padding: 1rem;

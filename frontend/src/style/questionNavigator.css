@@ -4,27 +4,33 @@
   right: -11rem;
   z-index: 3;
 
-  display: grid;
-  grid-auto-flow: column;
-  grid-template-rows: repeat(7, 1.35rem);
-  grid-auto-columns: 1.35rem;
-  row-gap: 0.85rem;
-  column-gap: 3rem;
+  display: flex;
+  flex-flow: row wrap;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 0.5rem;
+
+  width: 10rem;
+  max-width: 10rem;
 }
 
 .question-navigator__item {
-  display: inline-flex;
-  width: 1.35rem;
-  height: 1.35rem;
+  display: flex;
+  flex: 0 0 1.6rem;
+  width: 1.6rem;
+  min-width: 1.6rem;
+  max-width: 1.6rem;
+  height: 1.6rem;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
   border: 0.0625rem solid #355d45;
   border-radius: 0.28rem;
   background:
-    linear-gradient(180deg, rgba(223, 255, 240, 0.05), transparent 42%), #101a14;
+    linear-gradient(180deg, rgba(223, 255, 240, 0.05), transparent 42%),
+    #101a14;
   color: #7a8a80;
-  font-size: 0.52rem;
+  font-size: 0.6rem;
   font-weight: 700;
   line-height: 1;
   cursor: pointer;
@@ -38,12 +44,14 @@
     transform 0.15s ease,
     box-shadow 0.15s ease,
     background 0.15s ease;
+
+  padding: 0;
 }
 
 .question-navigator__item:hover {
   border-color: #86efac;
   color: #dffff0;
-  transform: translateX(-0.0625rem);
+  transform: translateY(-0.0625rem);
 }
 
 .question-navigator__item--answered {
@@ -56,7 +64,7 @@
     ),
     linear-gradient(180deg, #1d442d, #10291b);
   color: #86efac;
-  font-size: 0.64rem;
+  font-size: 0.72rem;
   box-shadow:
     inset 0 0.0625rem 0 rgba(223, 255, 240, 0.18),
     inset 0 -0.125rem 0 rgba(0, 0, 0, 0.28),
@@ -87,17 +95,43 @@
   outline-offset: 0.125rem;
 }
 
-@media (max-width: 56.25rem) {
+@media (max-width: 1024px) {
   .question-navigator {
     position: relative;
     top: auto;
     right: auto;
-    grid-auto-flow: row;
-    grid-template-rows: none;
-    grid-template-columns: repeat(auto-fit, 1.35rem);
+    width: 100%;
+    max-width: 100%;
     justify-content: center;
-    row-gap: 0.7rem;
-    column-gap: 0.7rem;
-    margin-top: 0.75rem;
+    margin: 0 0 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .question-navigator {
+    position: relative;
+    top: auto;
+    right: auto;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 0.4rem;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 0 1rem;
+  }
+
+  .question-navigator__item {
+    flex: 0 0 1.45rem;
+    width: 1.45rem;
+    min-width: 1.45rem;
+    max-width: 1.45rem;
+    height: 1.45rem;
+    font-size: 0.56rem;
+  }
+
+  .question-navigator__item--answered {
+    font-size: 0.66rem;
   }
 }

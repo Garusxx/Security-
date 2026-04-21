@@ -246,7 +246,7 @@
 
 /* ===== MOBILE ===== */
 
-@media (max-width: 40rem) {
+@media (max-width: 768px) {
   .test-runner__alert-dock {
     position: relative;
     top: auto;
@@ -265,5 +265,20 @@
   .test-runner__alert-icon:hover::after,
   .test-runner__alert-icon:focus-visible::after {
     transform: translateY(0);
+  }
+}
+
+@media (max-width: 1024px) {
+  .test-runner__top {
+    flex-wrap: wrap;
+  }
+
+  .test-runner__alert-dock {
+    position: relative;
+    top: auto;
+    left: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin: -0.25rem 0 1rem;
   }
 }

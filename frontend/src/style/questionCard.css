@@ -63,6 +63,7 @@
   color: #dcffe8;
   font-size: 0.9375rem;
   line-height: 1.45;
+  min-width: 0;
 }
 
 .question-card__option--selected,
@@ -81,4 +82,27 @@
 .question-card__option:has(input[type="radio"]:disabled) {
   opacity: 0.72;
   cursor: not-allowed;
+}
+
+@media (max-width: 1024px) {
+  .question-card__options {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .question-card {
+    padding: 1rem;
+  }
+
+  .question-card__title,
+  .question-card h3 {
+    font-size: 1.125rem;
+    line-height: 1.45;
+  }
+
+  .question-card__option {
+    align-items: flex-start;
+    gap: 0.625rem;
+  }
 }

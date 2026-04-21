@@ -455,7 +455,7 @@
 
 /* ===== RESPONSIVE ===== */
 
-@media (max-width: 47.5rem) {
+@media (max-width: 768px) {
   .test-runner {
     padding: 1.125rem;
   }
@@ -492,6 +492,46 @@
     right: auto;
     left: 0;
     max-width: min(20rem, calc(100vw - 3rem));
+    min-width: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .test-runner {
+    margin-top: 1.25rem;
+    padding: 1rem;
+  }
+
+  .test-runner__result-title {
+    font-size: 1.35rem;
+    line-height: 1.2;
+  }
+
+  .test-runner__review-card,
+  .test-runner__summary-card,
+  .test-runner__answer-box {
+    padding-inline: 0.875rem;
+  }
+
+  .test-runner__summary-card strong {
+    font-size: 1.35rem;
+  }
+
+  .test-runner__summary-card--expired {
+    grid-template-columns: 1fr;
+  }
+
+  .test-runner__summary-icon {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .test-runner__result-actions {
+    justify-content: stretch;
+  }
+
+  .test-runner__button {
+    width: 100%;
     min-width: 0;
   }
 }
