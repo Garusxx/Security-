@@ -218,26 +218,6 @@
     align-items: flex-start;
   }
 
-  .test-runner__alert-dock {
-    position: relative;
-    top: auto;
-    left: auto;
-    flex-direction: row;
-    margin: -8px 0 14px;
-  }
-
-  .test-runner__alert-icon::after {
-    top: calc(100% + 10px);
-    left: 0;
-    max-width: min(260px, calc(100vw - 72px));
-    transform: translateY(-6px);
-  }
-
-  .test-runner__alert-icon:hover::after,
-  .test-runner__alert-icon:focus-visible::after {
-    transform: translateY(0);
-  }
-
   .question-card {
     padding: 16px;
   }

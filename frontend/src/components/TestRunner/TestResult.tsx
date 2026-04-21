@@ -99,49 +99,34 @@ const TestResult = ({ result, error, onRestart }: TestResultProps) => {
                   </div>
                 </div>
 
-                <div className="test-runner__explanation-blocks">
+                <div className="test-runner__explanation-row">
                   {parsed.why && (
-                    <div className="test-runner__explanation-item test-runner__explanation-item--why">
-                      <div className="test-runner__explanation-content">
-                        <strong>Why</strong>
-                        <p>{parsed.why}</p>
-                      </div>
-                      <div
-                        className="test-runner__explanation-badge"
-                        aria-hidden="true"
-                      >
-                        WHY//
-                      </div>
+                    <div
+                      className="test-runner__explanation-icon test-runner__explanation-icon--why"
+                      data-tooltip={parsed.why}
+                      title="Why"
+                    >
+                      WHY//
                     </div>
                   )}
 
                   {parsed.memoryHook && (
-                    <div className="test-runner__explanation-item test-runner__explanation-item--memory">
-                      <div className="test-runner__explanation-content">
-                        <strong>Memory hook</strong>
-                        <p>{parsed.memoryHook}</p>
-                      </div>
-                      <div
-                        className="test-runner__explanation-badge"
-                        aria-hidden="true"
-                      >
-                        MEM//
-                      </div>
+                    <div
+                      className="test-runner__explanation-icon test-runner__explanation-icon--memory"
+                      data-tooltip={parsed.memoryHook}
+                      title="Memory hook"
+                    >
+                      MEM//
                     </div>
                   )}
 
                   {parsed.trap && (
-                    <div className="test-runner__explanation-item test-runner__explanation-item--trap">
-                      <div className="test-runner__explanation-content">
-                        <strong>Trap</strong>
-                        <p>{parsed.trap}</p>
-                      </div>
-                      <div
-                        className="test-runner__explanation-badge"
-                        aria-hidden="true"
-                      >
-                        TRAP//
-                      </div>
+                    <div
+                      className="test-runner__explanation-icon test-runner__explanation-icon--trap"
+                      data-tooltip={parsed.trap}
+                      title="Trap"
+                    >
+                      TRAP//
                     </div>
                   )}
                 </div>
