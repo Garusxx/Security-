@@ -28,11 +28,11 @@
   --border: #294534;
   --border-strong: #355d45;
 
-  --shadow: 0 0 18px rgba(94, 226, 143, 0.12);
+  --shadow: 0 0 1.125rem rgba(94, 226, 143, 0.12);
 }
 
 html {
-  font-size: 16px;
+  font-size: 1rem;
   box-sizing: border-box;
   scroll-behavior: smooth;
 }
@@ -55,7 +55,7 @@ body,
 body {
   position: relative;
   min-height: 100vh;
-  min-width: 320px;
+  min-width: 20rem;
   overflow-x: hidden;
   background:
     linear-gradient(135deg, rgba(94, 226, 143, 0.08) 0%, transparent 26%),
@@ -75,13 +75,13 @@ body::after {
 body::before {
   z-index: 0;
   background:
-    linear-gradient(rgba(94, 226, 143, 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(94, 226, 143, 0.045) 1px, transparent 1px),
+    linear-gradient(rgba(94, 226, 143, 0.045) 0.0625rem, transparent 0.0625rem),
+    linear-gradient(90deg, rgba(94, 226, 143, 0.045) 0.0625rem, transparent 0.0625rem),
     linear-gradient(135deg, transparent 0 47%, rgba(94, 226, 143, 0.055) 48% 49%, transparent 50% 100%);
   background-size:
-    42px 42px,
-    42px 42px,
-    220px 220px;
+    2.625rem 2.625rem,
+    2.625rem 2.625rem,
+    13.75rem 13.75rem;
   mask-image: linear-gradient(
     180deg,
     rgba(0, 0, 0, 0.85),
@@ -96,9 +96,9 @@ body::after {
     repeating-linear-gradient(
       0deg,
       rgba(255, 255, 255, 0.018) 0,
-      rgba(255, 255, 255, 0.018) 1px,
-      transparent 1px,
-      transparent 5px
+      rgba(255, 255, 255, 0.018) 0.0625rem,
+      transparent 0.0625rem,
+      transparent 0.3125rem
     ),
     linear-gradient(
       105deg,

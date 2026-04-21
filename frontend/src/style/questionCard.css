@@ -3,43 +3,43 @@
 .question-card {
   position: relative;
   z-index: 1;
-  padding: 22px;
+  padding: 1.375rem;
   background: #101a14;
-  border: 1px solid #2d4f3a;
-  box-shadow: inset 0 0 0 1px rgba(120, 255, 180, 0.04);
+  border: 0.0625rem solid #2d4f3a;
+  box-shadow: inset 0 0 0 0.0625rem rgba(120, 255, 180, 0.04);
 }
 
 .question-card::before {
   content: "[ SECURITY TEST ]";
   display: block;
-  margin-bottom: 14px;
+  margin-bottom: 0.875rem;
   color: #6ee7b7;
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.12em;
 }
 
 .question-card__title,
 .question-card h3 {
-  margin: 0 0 20px;
+  margin: 0 0 1.25rem;
   color: #f0fff4;
-  font-size: 21px;
+  font-size: 1.3125rem;
   line-height: 1.55;
 }
 
 .question-card__options {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 0.625rem;
 }
 
 .question-card__option {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 14px;
+  gap: 0.75rem;
+  padding: 0.875rem 0.875rem;
   cursor: pointer;
-  border: 1px solid #355d45;
+  border: 0.0625rem solid #355d45;
   background: #132018;
   transition:
     background 0.15s ease,
@@ -50,7 +50,7 @@
 .question-card__option:hover {
   background: #17271d;
   border-color: #59c98a;
-  transform: translateX(2px);
+  transform: translateX(0.125rem);
 }
 
 .question-card__option input[type="radio"] {
@@ -61,7 +61,7 @@
 
 .question-card__option span {
   color: #dcffe8;
-  font-size: 15px;
+  font-size: 0.9375rem;
   line-height: 1.45;
 }
 
@@ -69,7 +69,7 @@
 .question-card__option:has(input[type="radio"]:checked) {
   background: #1c3425;
   border-color: #7cffb0;
-  box-shadow: inset 0 0 0 1px rgba(124, 255, 176, 0.2);
+  box-shadow: inset 0 0 0 0.0625rem rgba(124, 255, 176, 0.2);
 }
 
 .question-card__option--selected span,

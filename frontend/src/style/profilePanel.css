@@ -5,7 +5,7 @@
   display: flex;
   justify-content: flex-end;
   z-index: 1000;
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(0.125rem);
 }
 
 .profile-panel {
@@ -18,10 +18,10 @@
   padding: 1.5rem;
 
   background: linear-gradient(180deg, #0b140f 0%, #101a14 100%);
-  border-left: 2px solid #355d45;
+  border-left: 0.125rem solid #355d45;
   box-shadow:
-    -8px 0 24px rgba(0, 0, 0, 0.28),
-    inset 0 0 0 1px rgba(94, 226, 143, 0.04);
+    -0.5rem 0 1.5rem rgba(0, 0, 0, 0.28),
+    inset 0 0 0 0.0625rem rgba(94, 226, 143, 0.04);
 
   color: #ecfdf5;
   font-family: "Courier New", Courier, monospace;
@@ -34,10 +34,10 @@
   pointer-events: none;
   background: repeating-linear-gradient(
     to bottom,
-    rgba(120, 255, 180, 0.025) 0px,
-    rgba(120, 255, 180, 0.025) 1px,
-    transparent 1px,
-    transparent 3px
+    rgba(120, 255, 180, 0.025) 0,
+    rgba(120, 255, 180, 0.025) 0.0625rem,
+    transparent 0.0625rem,
+    transparent 0.1875rem
   );
   opacity: 0.38;
 }
@@ -46,7 +46,7 @@
   position: absolute;
   top: 1rem;
   right: 1rem;
-  border: 1px solid transparent;
+  border: 0.0625rem solid transparent;
   background: transparent;
   font-size: 1.75rem;
   cursor: pointer;
@@ -71,7 +71,7 @@
   z-index: 1;
   margin: 0 0 0.5rem;
   color: #6ee7b7;
-  font-size: 11px;
+  font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.14em;
 }
@@ -85,7 +85,7 @@
   margin-bottom: 2rem;
   margin-top: 1rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #294534;
+  border-bottom: 0.0625rem solid #294534;
 }
 
 .profile-panel__avatar {
@@ -93,8 +93,8 @@
   height: 5rem;
   object-fit: cover;
   border-radius: 999rem;
-  border: 2px solid #4ade80;
-  box-shadow: 0 0 16px rgba(74, 222, 128, 0.2);
+  border: 0.125rem solid #4ade80;
+  box-shadow: 0 0 1rem rgba(74, 222, 128, 0.2);
   background: #132018;
 }
 
@@ -103,7 +103,7 @@
   font-size: 1.75rem;
   color: #ffffff;
   letter-spacing: 0.02em;
-  text-shadow: 0 0 6px rgba(74, 222, 128, 0.15);
+  text-shadow: 0 0 0.375rem rgba(74, 222, 128, 0.15);
 }
 
 .profile-panel__rank {
@@ -125,9 +125,9 @@
 .profile-panel__stat-card {
   padding: 1rem;
   background: #16241c;
-  border: 1px solid #3f6b52;
-  border-left: 4px solid #4ade80;
-  box-shadow: 0 0 12px rgba(74, 222, 128, 0.06);
+  border: 0.0625rem solid #3f6b52;
+  border-left: 0.25rem solid #4ade80;
+  box-shadow: 0 0 0.75rem rgba(74, 222, 128, 0.06);
 }
 
 .profile-panel__stat-label {
@@ -148,11 +148,11 @@
   position: relative;
   z-index: 1;
   margin-bottom: 1rem;
-  padding-bottom: 6px;
+  padding-bottom: 0.375rem;
   font-size: 1.2rem;
   color: #86efac;
   letter-spacing: 0.03em;
-  border-bottom: 1px solid #294534;
+  border-bottom: 0.0625rem solid #294534;
 }
 
 .profile-panel__history-list {
@@ -165,7 +165,7 @@
 
 .profile-panel__history-card {
   padding: 1rem;
-  border: 1px solid #355d45;
+  border: 0.0625rem solid #355d45;
   background: #16241c;
   transition:
     transform 0.15s ease,
@@ -173,8 +173,8 @@
 }
 
 .profile-panel__history-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0 16px rgba(74, 222, 128, 0.12);
+  transform: translateY(-0.125rem);
+  box-shadow: 0 0 1rem rgba(74, 222, 128, 0.12);
 }
 
 .profile-panel__history-test {
@@ -203,7 +203,7 @@
   z-index: 1;
   text-align: center;
   padding: 1rem;
-  border: 1px solid #294534;
+  border: 0.0625rem solid #294534;
   background: #101914;
   color: #9fb8a8;
 }
@@ -216,7 +216,7 @@
 
 /* scrollbar */
 .profile-panel::-webkit-scrollbar {
-  width: 8px;
+  width: 0.5rem;
 }
 
 .profile-panel::-webkit-scrollbar-thumb {

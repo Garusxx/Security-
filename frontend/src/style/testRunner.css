@@ -7,7 +7,7 @@
   color: #fecaca;
   font-weight: 700;
   text-align: center;
-  border: 1px solid;
+  border: 0.0625rem solid;
   border-color: #7f1d1d;
   background: #2b1111;
 }
@@ -26,22 +26,22 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
-  margin-top: 22px;
+  gap: 0.875rem;
+  margin-top: 1.375rem;
   width: 100%;
 }
 
 .test-runner__button {
   flex: 1 1 0;
   min-width: 0;
-  min-height: 48px;
-  padding: 12px 18px;
+  min-height: 3rem;
+  padding: 0.75rem 1.125rem;
   box-sizing: border-box;
-  border: 1px solid #5ee28f;
+  border: 0.0625rem solid #5ee28f;
   background: #153020;
   color: #dffff0;
   font-family: inherit;
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -52,16 +52,16 @@
     box-shadow 0.15s ease,
     transform 0.15s ease,
     border-color 0.15s ease;
-  box-shadow: inset 0 0 0 1px rgba(94, 226, 143, 0.08);
+  box-shadow: inset 0 0 0 0.0625rem rgba(94, 226, 143, 0.08);
 }
 
 .test-runner__button:hover:not(:disabled) {
   background: #1d442d;
   color: #ffffff;
   box-shadow:
-    0 0 12px rgba(94, 226, 143, 0.18),
-    inset 0 0 0 1px rgba(94, 226, 143, 0.12);
-  transform: translateY(-1px);
+    0 0 0.75rem rgba(94, 226, 143, 0.18),
+    inset 0 0 0 0.0625rem rgba(94, 226, 143, 0.12);
+  transform: translateY(-0.0625rem);
 }
 
 .test-runner__button:active:not(:disabled) {
@@ -101,15 +101,15 @@
   84% {
     opacity: 0.78;
     clip-path: inset(8% 0 74% 0);
-    transform: translateX(-4px);
+    transform: translateX(-0.25rem);
   }
   86% {
     clip-path: inset(48% 0 34% 0);
-    transform: translateX(4px);
+    transform: translateX(0.25rem);
   }
   88% {
     clip-path: inset(74% 0 8% 0);
-    transform: translateX(-3px);
+    transform: translateX(-0.1875rem);
   }
   90% {
     opacity: 0;
@@ -127,11 +127,11 @@
   88% {
     opacity: 0.7;
     clip-path: inset(18% 0 62% 0);
-    transform: translateX(4px);
+    transform: translateX(0.25rem);
   }
   90% {
     clip-path: inset(58% 0 22% 0);
-    transform: translateX(-4px);
+    transform: translateX(-0.25rem);
   }
   92% {
     opacity: 0;
@@ -150,15 +150,15 @@
   61% {
     opacity: 0.96;
     clip-path: inset(6% 0 78% 0);
-    transform: translateX(-8px);
+    transform: translateX(-0.5rem);
   }
   64% {
     clip-path: inset(28% 0 54% 0);
-    transform: translateX(7px);
+    transform: translateX(0.4375rem);
   }
   67% {
     clip-path: inset(63% 0 18% 0);
-    transform: translateX(-9px);
+    transform: translateX(-0.5625rem);
     filter: brightness(1.45);
   }
   70% {
@@ -177,15 +177,15 @@
   68% {
     opacity: 0.92;
     clip-path: inset(16% 0 66% 0);
-    transform: translateX(8px);
+    transform: translateX(0.5rem);
   }
   71% {
     clip-path: inset(43% 0 39% 0);
-    transform: translateX(-7px);
+    transform: translateX(-0.4375rem);
   }
   74% {
     clip-path: inset(79% 0 5% 0);
-    transform: translateX(9px);
+    transform: translateX(0.5625rem);
   }
   77% {
     opacity: 0;
@@ -196,21 +196,21 @@
   0%,
   100% {
     border-color: #2d4f3a;
-    box-shadow: inset 0 0 0 1px rgba(120, 255, 180, 0.04);
+    box-shadow: inset 0 0 0 0.0625rem rgba(120, 255, 180, 0.04);
   }
   50% {
     border-color: #5ee28f;
     box-shadow:
-      inset 0 0 0 1px rgba(120, 255, 180, 0.08),
-      0 0 18px rgba(94, 226, 143, 0.12);
+      inset 0 0 0 0.0625rem rgba(120, 255, 180, 0.08),
+      0 0 1.125rem rgba(94, 226, 143, 0.12);
   }
 }
 
 /* ===== RESPONSIVE ===== */
 
-@media (max-width: 640px) {
+@media (max-width: 40rem) {
   .test-runner {
-    padding: 18px;
+    padding: 1.125rem;
   }
 
   .test-runner__top {
@@ -219,7 +219,7 @@
   }
 
   .question-card {
-    padding: 16px;
+    padding: 1rem;
   }
 
   .question-card__options {
@@ -228,7 +228,7 @@
 
   .question-card__title,
   .question-card h3 {
-    font-size: 18px;
+    font-size: 1.125rem;
   }
 
   .test-runner__result-summary,
@@ -241,7 +241,7 @@
   }
 
   .test-runner__explanation-item > span {
-    min-height: 34px;
+    min-height: 2.125rem;
   }
 
   .test-runner__actions {

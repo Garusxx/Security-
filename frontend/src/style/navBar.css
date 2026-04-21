@@ -20,10 +20,10 @@
   gap: 0.65rem;
   padding: 0.45rem 0.8rem;
   background: #132018;
-  border: 1px solid #355d45;
+  border: 0.0625rem solid #355d45;
   box-shadow:
-    inset 0 0 0 1px rgba(94, 226, 143, 0.04),
-    0 0 12px rgba(94, 226, 143, 0.08);
+    inset 0 0 0 0.0625rem rgba(94, 226, 143, 0.04),
+    0 0 0.75rem rgba(94, 226, 143, 0.08);
 }
 
 .navbar__avatar {
@@ -31,9 +31,9 @@
   height: 2.3rem;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #4ade80;
+  border: 0.125rem solid #4ade80;
   background: #0f1b15;
-  box-shadow: 0 0 10px rgba(74, 222, 128, 0.14);
+  box-shadow: 0 0 0.625rem rgba(74, 222, 128, 0.14);
 }
 
 .navbar__username {
@@ -47,7 +47,7 @@
 .navbar__auth-btn,
 .navbar__profile-btn {
   padding: 0.75rem 1.1rem;
-  border: 1px solid #355d45;
+  border: 0.0625rem solid #355d45;
   background: #132018;
   color: #dffff0;
   font-size: 0.9rem;
@@ -65,11 +65,11 @@
 
 .navbar__profile-btn:hover,
 .navbar__auth-btn--login:hover {
-  transform: translateY(-1px);
+  transform: translateY(-0.0625rem);
   background: #1a2b20;
   border-color: #5ee28f;
   color: #ffffff;
-  box-shadow: 0 0 14px rgba(94, 226, 143, 0.14);
+  box-shadow: 0 0 0.875rem rgba(94, 226, 143, 0.14);
 }
 
 .navbar__auth-btn--login {
@@ -82,18 +82,18 @@
   border-color: #5ee28f;
   color: #f0fff4;
   box-shadow:
-    inset 0 0 0 1px rgba(94, 226, 143, 0.06),
-    0 0 14px rgba(94, 226, 143, 0.14);
+    inset 0 0 0 0.0625rem rgba(94, 226, 143, 0.06),
+    0 0 0.875rem rgba(94, 226, 143, 0.14);
 }
 
 .navbar__auth-btn--signup:hover {
-  transform: translateY(-1px);
+  transform: translateY(-0.0625rem);
   background: #1d442d;
   border-color: #86efac;
   color: #ffffff;
   box-shadow:
-    inset 0 0 0 1px rgba(134, 239, 172, 0.08),
-    0 0 18px rgba(94, 226, 143, 0.2);
+    inset 0 0 0 0.0625rem rgba(134, 239, 172, 0.08),
+    0 0 1.125rem rgba(94, 226, 143, 0.2);
 }
 
 .navbar__auth-btn--logout {
@@ -103,11 +103,11 @@
 }
 
 .navbar__auth-btn--logout:hover {
-  transform: translateY(-1px);
+  transform: translateY(-0.0625rem);
   background: #341313;
   border-color: #b91c1c;
   color: #ffffff;
-  box-shadow: 0 0 14px rgba(248, 113, 113, 0.16);
+  box-shadow: 0 0 0.875rem rgba(248, 113, 113, 0.16);
 }
 
 .navbar__profile-btn:active,
@@ -115,7 +115,7 @@
   transform: scale(0.98);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 48rem) {
   .navbar {
     top: 1rem;
     right: 1rem;
