@@ -73,7 +73,7 @@ export default function Signup({
             email: formData.email,
             password: formData.password,
           }),
-        }
+        },
       );
 
       const data = await response.json();
@@ -221,9 +221,13 @@ export default function Signup({
 
           <p className="signup-switch-text">
             Already have an account?{" "}
-            <span className="signup-switch-link" onClick={onSwitchToLogin}>
+            <button
+              type="button"
+              className="signup-switch-link"
+              onClick={onSwitchToLogin}
+            >
               Log in
-            </span>
+            </button>
           </p>
         </form>
       </div>

@@ -278,3 +278,35 @@
     transform: translateY(0);
   }
 }
+
+.login-switch-text {
+  margin: 4px 0 0;
+  color: #9fd9b2;
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+}
+.login-switch-link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #86efac;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    text-shadow 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.login-switch-link:hover {
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(134, 239, 172, 0.18);
+}
+
+.login-switch-link:active {
+  opacity: 0.85;
+}

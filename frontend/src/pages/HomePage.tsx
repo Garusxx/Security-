@@ -108,7 +108,7 @@ const HomePage = ({
           },
           credentials: "include",
           body: JSON.stringify({
-            questionCount: 5,
+            questionCount: 15,
           }),
         },
       );

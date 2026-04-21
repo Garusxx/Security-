@@ -138,9 +138,13 @@ export default function Login({
 
           <p className="login-switch-text">
             Don&apos;t have an account?{" "}
-            <span className="login-switch-link" onClick={onSwitchToSignup}>
+            <button
+              type="button"
+              className="login-switch-link"
+              onClick={onSwitchToSignup}
+            >
               Sign up
-            </span>
+            </button>
           </p>
         </form>
       </div>

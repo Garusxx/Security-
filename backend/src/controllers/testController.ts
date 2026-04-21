@@ -4,7 +4,7 @@ import { AuthRequest } from "../middleware/authMiddleware";
 import { generateSecurityTest } from "../services/testService";
 import { db } from "../config/db";
 
-const TEST_DURATION_MINUTES = 0.5;
+const TEST_DURATION_MINUTES = 7;
 const TEST_DURATION_MS = TEST_DURATION_MINUTES * 60 * 1000;
 
 type TestStatus = "generated" | "started" | "finished" | "expired";
@@ -122,7 +122,7 @@ export const generateTest = async (req: AuthRequest, res: Response) => {
     if (
       !Number.isInteger(questionCount) ||
       questionCount < 1 ||
-      questionCount > 10
+      questionCount > 15
     ) {
       return res.status(400).json({
         message: "questionCount must be between 1 and 10",
