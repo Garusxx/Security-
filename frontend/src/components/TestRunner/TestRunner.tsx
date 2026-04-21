@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import "../../style/testRunner.css";
+import "../../style/testEntryGlitch.css";
 import QuestionCard from "./QuestionCard";
 import TestHeader from "./TestHeader";
 import TestResult from "./TestResult";
