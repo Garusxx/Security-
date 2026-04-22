@@ -8,10 +8,9 @@ import testRoutes from "./routes/testRoutes";
 const app = express();
 
 // middleware
-const allowedOrigins = [
-  "http://localhost:5173",
-  process.env.FRONTEND_URL,
-].filter((origin): origin is string => Boolean(origin));
+const allowedOrigins = [process.env.FRONTEND_URL].filter(
+  (origin): origin is string => Boolean(origin),
+);
 
 app.use(
   cors({
