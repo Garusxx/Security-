@@ -125,33 +125,47 @@ export const generateSecurityTest = async (
 ): Promise<GeneratedTest> => {
   const prompt = `
 Generate a Security+ practice test.
+
 Return only valid JSON in this exact structure:
 
 {
-  "title": "Security+ Practice Test",
-  "questions": [
-    {
-      "question": "Question text",
-      "options": ["A", "B", "C", "D"],
-      "correctAnswer": 0,
-      "explanation": "Why: ... Memory hook: ... Trap: ..."
-    }
-  ]
+"title": "Security+ Practice Test",
+"questions": [
+{
+"question": "Question text",
+"options": ["A", "B", "C", "D"],
+"correctAnswer": 0,
+"explanation": "Why: ... Memory hook: ... Trap: ..."
+}
+]
 }
 
 Rules:
-- exactly ${questionCount} questions
-- exactly 4 options per question
-- correctAnswer must be a number from 0 to 3
-- one correct answer only
-- no markdown
-- no extra text
-- no duplicate questions
-- explanations must be concise and clear
-- each explanation must use exactly this format:
+
+* exactly ${questionCount} questions
+* exactly 4 options per question
+* correctAnswer must be a number from 0 to 3
+* one correct answer only
+* no markdown
+* no extra text
+* no duplicate questions
+
+CRITICAL RULES:
+
+* The correct answer MUST be included only in the "correctAnswer" field
+* The question text must NOT contain any hints, clues, or answers
+* Do NOT use parentheses () to reveal or suggest the correct answer
+* Do NOT include phrases like "correct answer is", "this means", or similar hints
+* All answer options must be plausible and similar in style
+
+Explanations:
+
+* must be concise and clear
+* must follow EXACT format:
   Why: one short sentence
   Memory hook: one short memorable phrase or analogy
   Trap: one short sentence explaining why a likely wrong answer is wrong
+
 `;
 
   const response = await openai.responses.create({

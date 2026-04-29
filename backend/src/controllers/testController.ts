@@ -591,7 +591,7 @@ export const submitTest = async (req: AuthRequest, res: Response) => {
       const isCorrect = row.selected_answer === row.correct_answer;
 
       if (isCorrect) {
-        correctCount += 1;
+        correctCount += 2;
       }
 
       return {
